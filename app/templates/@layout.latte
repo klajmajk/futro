@@ -1,0 +1,39 @@
+{**
+ * @param string   $basePath web base path
+ * @param array    $flashes  flash messages
+ *}
+
+<!DOCTYPE html>
+<html lang="cs" ng-app="futra">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>{ifset #title}{include title|striptags} | {/ifset}Nette Sandbox</title>
+	
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	{ifset #css}<link rel="stylesheet"  media="screen,projection,tv" 
+	      href="{$basePath}/css/turbine/css.php?files={include css}" />{/ifset}
+	<link rel="stylesheet" media="print" href="{$basePath}/css/print.css">
+	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
+	{block head}{/block}
+</head>
+
+<body>
+	<script> document.documentElement.className+=' js'; </script>
+	
+	<div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
+	
+	{block content}{/block}
+
+	{block scripts}
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-route.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-resource.min.js"></script>
+	<script src="{$basePath}/js/app/app.js"></script>
+	<script src="{$basePath}/js/app/controllers.js"></script>
+	<script src="{$basePath}/js/app/filters.js"></script>
+	<script src="{$basePath}/js/app/services.js"></script>
+	{/block}
+</body>
+</html>

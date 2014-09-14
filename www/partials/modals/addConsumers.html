@@ -1,0 +1,29 @@
+<div class="modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" ng-click="$hide()">&times;</button>
+				<h4 class="modal-title">Další dnešní konzumenti</h4>
+			</div>
+			<div class="modal-body">
+				<button type="button" class="btn btn-lg" style="margin-right:10px;"
+					ng-class="{false:'btn-default', true:'btn-info'}[Consumers.selected[consumer.id_kumpan]]"
+					ng-repeat="consumer in Consumers.list| orderBy:'alias' | orderBy:'-privileges' "
+					ng-if="!Consumers.isActive(consumer)"
+					ng-click="Consumers.selected[consumer.id_kumpan] = !Consumers.selected[consumer.id_kumpan]">
+					{{ consumer.alias }}
+					<span ng-if="consumer.privileges < 10">&times;</span>
+				</button>
+				<button type="button" class="btn btn-lg btn-success">
+					<span ng-show="Consumers.new===false" ng-click="Consumers.new=null">Založit nového...</span>
+					<input ng-show="Consumers.new!==false" ng-model="Consumers.new" ng-blur="Consumers.addNew()"
+							set-focus-if="Consumers.new===null" type="text" class="form-control" placeholder="Přízvisko" />
+				</button>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" ng-click="$hide()">Zavřít</button>
+				<button type="button" class="btn btn-primary" ng-click="$hide()">Přidat</button>
+			</div>
+		</div>
+	</div>
+</div>

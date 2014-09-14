@@ -1,0 +1,1 @@
+[2014-09-14 00-15-30] Fatal error: Call to a member function toArray() on a non-object in C:\wamp\www\futro\app\ApiModule\presenters\BarrelPresenter.php:53  @  http://192.168.1.2/futro/www/api/v1/barrel/4  @@  exception-2014-09-14-00-15-30-6e2ff8562f4498a791abc43041c4ae5e.html

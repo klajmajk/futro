@@ -1,0 +1,39 @@
+@turbine
+	compress:1
+	plugins:backgroundgradient
+
+@constants
+	vytocColWidth:15em
+
+.center
+	text-align:center
+
+.btn-purple
+	background:#563D7C
+	border-color:#563D7C
+	color:#FFF
+
+.btn-purple:hover
+	background:#8e44ad
+	border-color:#8e44ad
+
+.container-fluid
+	padding:0
+
+#vytoc
+	padding-top:50px
+	.navbar-right
+		margin-right:0
+		text-align:center
+		min-width:$vytocColWidth
+		li
+			width:$vytocColWidth
+			a
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+	td
+		width:$vytocColWidth
+		text-align:center
+		button
+			margin:.5em
