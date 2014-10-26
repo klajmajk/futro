@@ -32,9 +32,10 @@ class BarrelPresenter extends BasePresenter
 
 	public function actionCreate()
 	{
-		$test = \Drahak\Restful\Utils\Strings::toSnakeCase('idBarrelState');
-		var_dump($test);  // $this->resource->action = 'Create';
-		$input = $this->getInputData();
+		//$test = \Drahak\Restful\Utils\Strings::toSnakeCase('idBarrelState');
+		//var_dump($test);  // $this->resource->action = 'Create';
+		$input = $this->getInputData(true);
+                //var_dump($input);
 		if ($input['barrel_state'] !== 'STOCK') {
 			$exception = new \Exception('Not allowed', 403);
 			$this->sendErrorResource($exception);
@@ -48,6 +49,7 @@ class BarrelPresenter extends BasePresenter
 	{
 		// $this->resource->action = 'Update';
 		$input = $this->getInputData();
+                
 		if ($id === null)
 			$id = $input['id_'.$this->table->getName()];
 		$currentBarrel = $this->table->get($id);
@@ -104,7 +106,11 @@ class BarrelPresenter extends BasePresenter
 	public function actionDelete($id)
 	{
 		$currentBarrel = $this->table->get($id);
-		$this->countAndFinishBarrel($currentBarrel);
+                if($currentBarrel->taped == NULL){
+                    $currentBarrel->delete();                            
+                }else{
+                    $this->sendErrorResource(new \Exception('Can delete only barrels which have never been tapped.', 403));
+                }
 	}
 
 

@@ -65,11 +65,11 @@ class BasePresenter extends \Drahak\Restful\Application\UI\ResourcePresenter
 	protected function getInputData($checkDate = true, $flatten = true)
 	{
 		$input = $this->input->getData();
+                //var_dump($input);
 		$converter = new \Drahak\Restful\Converters\SnakeCaseConverter();
 		$input = $converter->convert($input);
 		if ($flatten)
 			$this->flatten($input);
-
 		return $input;
 	}
 

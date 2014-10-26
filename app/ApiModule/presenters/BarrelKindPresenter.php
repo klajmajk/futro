@@ -12,6 +12,11 @@ use Nette,
  */
 class BarrelKindPresenter extends BasePresenter
 {
-	
+	  public function actionRead()
+	  {
+            $this->resource->action = 'Read';
+            $this->resource = iterator_to_array($this->table, false);
+            $this->sendResource(IResource::JSON);
+	  }
 	
 }
