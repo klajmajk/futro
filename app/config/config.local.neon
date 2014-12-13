@@ -7,4 +7,3 @@ nette:
 		user: root
 		password: root
 		options:
-			lazy: yes
