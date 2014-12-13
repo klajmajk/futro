@@ -37,6 +37,8 @@ class BasePresenter extends ResourcePresenter
 		parent::__construct();
 
 		$this->db = $database;
+		$tableName = $this->getTableByPresenterName();
+		$this->table = $this->db->table($tableName);
 	}
 	
 	
@@ -53,10 +55,10 @@ class BasePresenter extends ResourcePresenter
 		if ($this->getAction() !== 'read' && !$this->inputData)
 			$this->inputData = $this->getInputData();
 		
-		$tableName = $this->getTableByPresenterName();
 		$relation = $this->getParameter('relation');
-		$this->table = $relation === NULL ? $this->db->table($tableName) :
-				$this->db->table($relation)->where($tableName, $this->getParameter('id'));
+		if ($relation !== null)
+			$this->table = $this->db->table($relation)
+				->where($this->table->getName(), $this->getParameter('id'));
 	}
 
 
@@ -138,6 +140,8 @@ class BasePresenter extends ResourcePresenter
 	{
 		foreach ($map as $key => $val) {
 			if (is_array($val)) {
+				if (!is_int($dest[$key]))
+					continue;
 				$dest[$key] = $row->ref($key)->toArray();
 				$this->getDeepData($dest[$key], $row->ref($key), $val);
 			} else {
