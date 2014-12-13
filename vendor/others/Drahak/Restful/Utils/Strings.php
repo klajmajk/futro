@@ -53,11 +53,9 @@ class Strings extends Nette\Utils\Strings
 	public static function toSnakeCase($string)
 	{
 		$replace = array(' ', '-');
-		$string = self::replace(ltrim($string, '!'), '/([^_]+[a-z -]{1})([A-Z])/', '$1_$2');
-		$string = self::replace(ltrim($string, '!'), '/([^_]+[a-z -]{1})([A-Z])/', '$1_$2');
 		return self::trim(
 			self::lower(
-				str_replace($replace, '_', $string)
+				str_replace($replace, '_', self::replace(ltrim($string, '!'), '/([^_]+[a-z -]{1})([A-Z])/U', '$1_$2'))
 			)
 		);
 	}

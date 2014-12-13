@@ -143,6 +143,15 @@ class Permission extends Nette\Object implements IAuthorizator
 		return array_keys($this->roles[$role]['parents']);
 	}
 
+	
+	public function getEffectiveRoles($role)
+	{
+		$roles = array($role => TRUE);
+		foreach($this->getRoleParents($role) as $parent)
+			$roles += array_flip($this->getEffectiveRoles($parent));
+						
+		return array_keys($roles);
+	}
 
 	/**
 	 * Returns TRUE if $role inherits from $inherit. If $onlyParents is TRUE,

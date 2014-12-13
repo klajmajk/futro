@@ -1,0 +1,8 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Created for fun by Junior Kumpan DUO
+${licensePrefix}Upper Blackbird's Society
+<#if licenseLast??>
+${licenseLast}
+</#if>

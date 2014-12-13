@@ -1,6 +1,64 @@
+{block cssp}login.cssp{/block}
+
 {block content}
-<h1 n:block=title>Sign in</h1>
-
-{control signInForm}
-
-{* or use {include '../components/form.latte', form => signInForm} *}
+<div class="container">
+	<div id="signin_container">
+		<div id="title">
+			<object type="image/svg+xml" data="{$basePath}/images/hbs.svg" width="100%">Your browser does not support SVG</object>
+		</div>
+		<div class="row blackbirds" id="blackbird_upper">
+			<div class="col-xs-2 col-xs-offset-1">
+				<object type="image/svg+xml" data="{$basePath}/images/kos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2">
+				<object type="image/svg+xml" data="{$basePath}/images/kos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2">
+				<object type="image/svg+xml" data="{$basePath}/images/kos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2 flipped">
+				<object type="image/svg+xml" data="{$basePath}/images/kos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2 flipped">
+				<object type="image/svg+xml" data="{$basePath}/images/kos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+		</div>
+		<div id="table_black_border">
+			<div id="table_white_border">
+				<form class="form-inline" role="form" n:name="signInForm">
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">@</div>
+							<input class="form-control" n:name="username" placeholder="Email...">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></div>
+							<input class="form-control" n:name="password" placeholder="Heslo...">
+						</div>
+					</div>
+					<button n:name="enter" class="btn btn-success">Přihlásit</button>
+				</form>
+			</div>		
+		</div>
+		<div class="row blackbirds" id="blackbird_bottom">
+			<div class="col-xs-2 col-xs-offset-1">
+				<object type="image/svg+xml" data="{$basePath}/images/zakos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2">
+				<object type="image/svg+xml" data="{$basePath}/images/zakos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2 flipped">
+				<object type="image/svg+xml" data="{$basePath}/images/zakos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2">
+				<object type="image/svg+xml" data="{$basePath}/images/zakos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+			<div class="col-xs-2 flipped">
+				<object type="image/svg+xml" data="{$basePath}/images/zakos.svg" width="100%">Your browser does not support SVG</object>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}

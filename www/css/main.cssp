@@ -1,0 +1,161 @@
+?cover
+	-webkit-background-size: cover
+	-moz-background-size: cover
+	-o-background-size: cover
+	background-size: cover
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.myBackground.jpg', sizingMethod='scale')
+	-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='myBackground.jpg', sizingMethod='scale')"
+
+
+// Base structure
+html, body
+	height: 100%
+	background-color: #333
+	
+
+// Extra markup and styles for table-esque vertical and horizontal centering
+.site-wrapper
+	background: no-repeat center center  url(../../images/atmosphere.jpg)
+	extends: "?cover"
+	display: table
+	width: 100%
+	height: 100% // For at least Firefox
+	min-height: 100%
+	-webkit-box-shadow: inset 0 0 100px rgba(0,0,0,.5)
+	box-shadow: inset 0 0 100px rgba(0,0,0,.5)
+
+.site-wrapper-inner
+	display: table-cell
+	vertical-align: top
+
+.cover-container 
+	margin-right: auto
+	margin-left: auto
+
+.inner
+	color: #fff
+	text-shadow: 0 1px 3px rgba(0,0,0,.5)
+	padding: 30px
+	a, a:focus, a:hover
+		color: #fff
+		// Custom default button
+	.btn-default, .btn-default:hover, .btn-default:focus
+		color: #333
+		text-shadow: none
+		background-color: #fff
+		border: 1px solid #fff
+
+// Header
+.masthead-brand
+	margin-top: 10px
+	margin-bottom: 10px
+
+.masthead-nav > li
+	display: inline-block
+	+ li
+		margin-left: 20px
+	a
+		padding-right: 0
+		padding-left: 0
+		font-size: 16px
+		font-weight: bold
+		color: #fff // IE8 proofing
+		color: rgba(255,255,255,.75)
+		border-bottom: 2px solid transparent
+		&:hover, &:focus
+			background-color: transparent
+			border-bottom-color: #a9a9a9
+			border-bottom-color: rgba(255,255,255,.25)
+	
+
+.masthead-nav > .active
+	> a, > a:hover, > a:focus
+		color: #fff
+		border-bottom-color: #fff	
+
+// Cover
+.cover
+	padding: 0 20px
+	.btn-lg
+		padding: 10px 20px
+		font-weight: bold
+
+
+// Footer
+.mastfoot
+	color: #999 // IE8 proofing
+	color: rgba(255,255,255,.5)
+
+// angular strap modal
+.modal
+	&.center
+		position: fixed
+		top: 40%
+		left: 50%
+		min-width: 320px
+		max-width: 630px
+		width: 50%
+		-webkit-transform: translateX(-50%) translateY(-50%)
+		transform: translateX(-50%) translateY(-50%)		
+	&-backdrop.am-fade
+		opacity: .5
+		transition: opacity .15s linear
+		&.ng-enter
+			opacity: 0
+			&.ng-enter-active
+				opacity: .5
+		&.ng-leave
+			opacity: .5
+			&.ng-leave-active
+				opacity: 0
+
+body > div.consumption-popover
+	max-width: 600px
+
+.keg-info
+	.row
+		padding: 5px 20px
+	.progress
+		margin-bottom: 0px	
+	.consumption_table
+			max-height: 450px
+
+// angular strap collapse
+.collapse.am-collapse
+	animation-duration: .3s
+	animation-timing-function: ease
+	animation-fill-mode: backwards
+	overflow: hidden
+	&.in-remove
+		animation-name: collapse
+		display: block
+	&.in-add
+		animation-name: expand
+
+#exit
+	position:absolute
+	width: 50px
+	height: 50px
+	background-color: #FFF
+	padding: 3px
+
+// Affix and center
+@media (min-width: 768px)
+	.masthead-brand
+		float: left
+	.masthead-nav
+		float: right
+	.masthead // Pull out the header and footer
+		position: fixed
+		top: 0
+	.mastfoot
+		position: fixed
+		bottom: 0
+	.site-wrapper-inner // Start the vertical centering
+		vertical-align: middle
+	.masthead, .mastfoot, .cover-container // Handle the widths
+		width: 100%; // Must be percentage or pixels for horizontal alignment
+
+@media (min-width: 992px)
+	.masthead, .mastfoot, .cover-container
+		width: 700px

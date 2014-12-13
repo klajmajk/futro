@@ -3,8 +3,8 @@ parameters:
 
 nette:
 	database:
-		dsn: 'mysql:host=127.0.0.1;dbname=futra'
+		dsn: 'mysql:host=127.0.0.1;dbname=futro'
 		user: root
-		password:
+		password: root
 		options:
 			lazy: yes

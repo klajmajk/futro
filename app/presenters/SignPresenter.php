@@ -3,8 +3,8 @@
 namespace App\Presenters;
 
 use Nette,
-	App\Model;
-
+	App\Model,
+	Nette\Application\UI\Form;
 
 /**
  * Sign in/out presenters.
@@ -12,23 +12,22 @@ use Nette,
 class SignPresenter extends BasePresenter
 {
 
-
 	/**
 	 * Sign-in form factory.
 	 * @return Nette\Application\UI\Form
 	 */
 	protected function createComponentSignInForm()
 	{
-		$form = new Nette\Application\UI\Form;
-		$form->addText('username', 'Username:')
-			->setRequired('Please enter your username.');
+		$form = new Form;
+		$form->addText('username')
+				->setType('email')
+				->addRule(Form::EMAIL, 'Zadaný email není platná emailová adresa.')
+				->setRequired('Políčko email není vyplněné.');
 
-		$form->addPassword('password', 'Password:')
-			->setRequired('Please enter your password.');
+		$form->addPassword('password')
+				->setRequired('Políčko heslo není vyplněné');
 
-		$form->addCheckbox('remember', 'Keep me signed in');
-
-		$form->addSubmit('send', 'Sign in');
+		$form->addSubmit('enter');
 
 		// call method signInFormSucceeded() on success
 		$form->onSuccess[] = $this->signInFormSucceeded;
@@ -38,16 +37,11 @@ class SignPresenter extends BasePresenter
 
 	public function signInFormSucceeded($form, $values)
 	{
-		if ($values->remember) {
-			$this->getUser()->setExpiration('14 days', FALSE);
-		} else {
-			$this->getUser()->setExpiration('20 minutes', TRUE);
-		}
+		$this->getUser()->setExpiration('14 days', FALSE);
 
 		try {
 			$this->getUser()->login($values->username, $values->password);
-			$this->redirect('Homepage:');
-
+			$this->redirect('Main:');
 		} catch (Nette\Security\AuthenticationException $e) {
 			$form->addError($e->getMessage());
 		}
@@ -60,5 +54,6 @@ class SignPresenter extends BasePresenter
 		$this->flashMessage('You have been signed out.');
 		$this->redirect('in');
 	}
+
 
 }

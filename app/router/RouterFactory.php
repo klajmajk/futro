@@ -21,10 +21,10 @@ class RouterFactory
 	public function createRouter()
 	{
 		$router = new RouteList();	
-		$router[] = new CrudRoute('api/v1/<presenter>[/<id>/[<relation>[/<relationId>]]]', array(
+		$router[] = new CrudRoute('futro/<presenter>/[<id>/[<relation>[/<relationId>]]]', array(
 		    'module' => 'Api'
 		));
-		$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+		$router[] = new Route('<presenter>/<action>[/<id>]', 'Main:default');
 		return $router;
 	}
 

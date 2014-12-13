@@ -2,46 +2,65 @@
 
 /* App Module */
 
-var futra = angular.module('futra', [
+var kumpanium = angular.module('kumpanium', [
 	'ngRoute',
 	'ngSanitize',
-	'futraControllers',
-	'futraFilters',
-	'futraServices',
-	'futraDirectives',
+	'kumpaniumControllers',
+	'kumpaniumFilters',
+	'kumpaniumServices',
+	'kumpaniumDirectives',
 	'mgcrea.ngStrap',
+	'chart.js',
 	'ngAnimate'
 ]);
 
-var devel = '/futra/www';
+kumpanium
+		.config(['$routeProvider',
+			function ($routeProvider) {
 
-futra
-	.config(['$routeProvider',
-		function($routeProvider) {
-			$routeProvider.
-				when('/consumption', {
-					templateUrl: devel + '/partials/consumption.html',
-					controller: 'consumptionCtrl'
-				}).
-				when('/phones/:phoneId', {
-					templateUrl: 'partials/phone-detail.html',
-					controller: 'PhoneDetailCtrl'
-				}).
-				otherwise({
-					redirectTo: '/consumption'
-				});
-		}])
-	
-	.config(['$popoverProvider',
-		function($popoverProvider) {
-			angular.extend($popoverProvider.defaults, {
-				html: true
+				var path = '/futro/www/partials';
+
+				$routeProvider.
+						when('/novinky', {
+							title: 'Novinky',
+							templateUrl: path + '/news',
+							controller: 'newsConstroller'
+						}).
+						when('/konzumenti', {
+							title: 'Konzumenti',
+							templateUrl: path + '/users',
+							controller: 'usersController'
+						}).
+						when('/statistiky', {
+							title: 'Statistiky',
+							templateUrl: path + '/stats',
+							controller: 'statsController'
+						}).
+						when('/zasoby', {
+							title: 'Zásoby',
+							templateUrl: path + '/stock',
+							controller: 'stockController'
+						}).
+						otherwise({
+							redirectTo: '/novinky'
+						});
+			}])
+
+		.run(function ($rootScope) {
+			$rootScope.$on("$routeChangeSuccess", function (event, currentRoute, previousRoute) {
+				document.title = currentRoute.title + ' | Kumpanium';
 			});
-		}])
-	
-	.config(['$modalProvider',
-		function($modalProvider) {
+		})
+		
+		.config(function ($modalProvider) {
 			angular.extend($modalProvider.defaults, {
 				html: true
 			});
-		}]);
+		});
+
+function truncateElelment(selector) {
+	var element = document.querySelector(selector);
+	while (element.lastChild)
+		element.removeChild(element.lastChild);
+}
+

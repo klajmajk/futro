@@ -67,8 +67,7 @@ class ResourceRoute extends Route implements IResourceRouter
 	{
 		$common = array(self::CRUD, self::RESTFUL);
 		$isActionDefined = $this->actionDictionary && !in_array($method, $common) ?
-			isset($this->actionDictionary[$method]) :
-			TRUE;
+			isset($this->actionDictionary[$method]) : TRUE;
 		return ($this->flags & $method) == $method && $isActionDefined;
 	}
 
@@ -142,7 +141,8 @@ class ResourceRoute extends Route implements IResourceRouter
 	public function constructUrl(Application\Request $appRequest, Http\Url $refUrl)
 	{
 		if (count($this->actionDictionary) > 0) {
-			$params = $appRequest->parameters;
+			$appRequest = clone $appRequest;
+			$params = $appRequest->getParameters();
 			$params['action'] = 'default'; // so the request matches with route with action dictionary
 			$appRequest->setParameters($params);
 		}

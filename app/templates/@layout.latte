@@ -4,17 +4,15 @@
  *}
 
 <!DOCTYPE html>
-<html lang="cs" ng-app="futra">
+<html lang="cs"{ifset #app} ng-app="{include app}"{/ifset}>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>{ifset #title}{include title|striptags} | {/ifset}Nette Sandbox</title>
+	<title>{ifset #title}{include title|striptags} | {/ifset}Kumpanium</title>
 	
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-	{ifset #css}<link rel="stylesheet"  media="screen,projection,tv" 
-	      href="{$basePath}/css/turbine/css.php?files={include css}" />{/ifset}
-	<link rel="stylesheet" media="print" href="{$basePath}/css/print.css">
+	{ifset #cssp}<link rel="stylesheet" href="{$basePath}/css/turbine/css.php?files={include cssp}" />{/ifset}
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	{block head}{/block}
 </head>
@@ -26,14 +24,6 @@
 	
 	{block content}{/block}
 
-	{block scripts}
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-route.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular-resource.min.js"></script>
-	<script src="{$basePath}/js/app/app.js"></script>
-	<script src="{$basePath}/js/app/controllers.js"></script>
-	<script src="{$basePath}/js/app/filters.js"></script>
-	<script src="{$basePath}/js/app/services.js"></script>
-	{/block}
+	{block scripts}{/block}
 </body>
 </html>

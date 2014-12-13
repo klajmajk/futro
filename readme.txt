@@ -1,41 +1,21 @@
-Nette Framework Sandbox
-=======================
+kořenová složka aplikace je
+/futro/www/
 
-The basic skeleton of application.
+url pro přístup k restfull API
+/futro/www/api/v1/<item>[/<id>]...
 
+přístup do databáze přes SQL správce Adminer
+/futro/www/adminer
 
-What is [Nette Framework](http://nette.org)?
---------------------------------------------
+pracovní soubory API jsou v ApiModule
+/futra/app/ApiModule/
 
-Nette Framework is a popular tool for PHP web development. It is designed to be
-the most usable and friendliest as possible. It focuses on security and
-performance and is definitely one of the safest PHP frameworks.
+dělí se na podsložky model, presenter, template (analogie Model->Controller->View)
+API si momentálně vystačí jen s presentery, jinde nic není
 
-Nette Framework speaks your language and helps you to easily build better websites.
+v presenterech je univerzální předek BasePresenter, od kterého všichni dědí,
+to je tak nějak celé...
 
-
-Installing
-----------
-
-The best way to install Nette Framework is to download latest package
-from http://nette.org/download or create new project using Composer:
-
-1. Install Composer: (see http://getcomposer.org/download)
-
-		curl -s http://getcomposer.org/installer | php
-
-2. Create new project via Composer:
-
-		php composer.phar create-project nette/sandbox myApplication
-		cd myApplication
-
-Make directories `temp` and `log` writable. Navigate your browser
-to the `www` directory and you will see a welcome page. PHP 5.4 allows
-you run `php -S localhost:8888 -t www` to start the web server and
-then visit `http://localhost:8888` in your browser.
-
-
-It is CRITICAL that file `app/config/config.neon` & whole `app`, `log`
-and `temp` directory are NOT accessible directly via a web browser! If you
-don't protect this directory from direct web access, anybody will be able to see
-your sensitive data. See [security warning](http://nette.org/security-warning).
+konfigurace databáze (jméno:heslo) se dělá v app/config/config.local.neon
+na tento soubor by bylo fajn udělat .gitignore, či jak se to jmenuje,
+jestli teda používáš jiné heslo...
