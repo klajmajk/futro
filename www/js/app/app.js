@@ -18,7 +18,7 @@ kumpanium
 		.config(['$routeProvider',
 			function ($routeProvider) {
 
-				var path = '/futro/www/partials';
+				var path = '/partials';
 
 				$routeProvider.
 						when('/novinky', {

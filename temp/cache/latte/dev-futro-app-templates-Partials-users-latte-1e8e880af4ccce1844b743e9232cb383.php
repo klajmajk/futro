@@ -2,7 +2,7 @@
 // source: C:\Users\novot_000\OneDrive\dev\futro\app/templates/Partials/users.latte
 
 // prolog Latte\Macros\CoreMacros
-list($_b, $_g, $_l) = $template->initialize('7624577342', 'html')
+list($_b, $_g, $_l) = $template->initialize('6572949096', 'html')
 ;
 // prolog Nette\Bridges\ApplicationLatte\UIMacros
 
@@ -42,18 +42,22 @@ if (empty($_l->extends) && !empty($_control->snippetMode)) {
 							{{ user.lastSoup|date:'EEEE, d. M. y' }}
 						</a>
 					</td>
-					<td>
+					<td ng-class="{ 'text-danger': user.balance < 0 }">
 						{{ user.balance|currency:'Kč ':2 }}
 					</td>
 					<td>
-						<i class="glyphicon glyphicon-envelope"
-						   data-placement="top" data-type="info"
-						   data-animation="am-fade-and-scale"
-						   bs-tooltip="user.email"></i>
-						<i class="glyphicon glyphicon-earphone"
-						   data-placement="top" data-type="info"
-						   data-animation="am-fade-and-scale"
-						   bs-tooltip="user.phone"></i>
+						<a ng-href="mailto:{{ user.email }}">
+							<i class="glyphicon glyphicon-envelope"
+							   data-placement="top" data-type="info"
+							   data-animation="am-fade-and-scale"
+							   bs-tooltip="user.email"></i>
+						</a>
+						<a ng-href="tel:{{ user.phone }}">
+							<i class="glyphicon glyphicon-earphone"
+							   data-placement="top" data-type="info"
+							   data-animation="am-fade-and-scale"
+							   bs-tooltip="user.phone"></i>
+						</a>
 					</td>
 				</tr>
 			</tbody>
@@ -62,39 +66,37 @@ if (empty($_l->extends) && !empty($_control->snippetMode)) {
 </div>
 
 <!-- fragments to use as template -->
-<div class="hidden" ng-non-bindable>
-	<div id="userConsumptionModal" >
-		
-	</div>
-	<div id="userCreditModal">
-		<table class="table">
+<div cache-template="userConsumptionModal">
+
+</div>
+<div cache-template="userCreditModal">
+	<table class="table">
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+	</table>
+
+	<table class="table table-condensed">
+		<thead>
 			<tr>
-				<th>Celkem zaplaceno</th>
+				<th>Datum</th>
+				<th>Částka</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="record in User.getCreditHistory(user.id) as history">
+				<td></td>
 				<td></td>
 			</tr>
-			<tr>
-				<th>Celkem zaplaceno</th>
-				<td></td>
-			</tr>
-			<tr>
-				<th>Celkem zaplaceno</th>
-				<td></td>
-			</tr>
-		</table>
-		
-		<table class="table table-condensed">
-			<thead>
-				<tr>
-					<th>Datum</th>
-					<th>Částka</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="record in User.getCreditHistory(user.id) as history">
-					<td></td>
-					<td></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+		</tbody>
+	</table>
 </div>

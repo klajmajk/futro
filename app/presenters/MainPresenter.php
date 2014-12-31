@@ -31,5 +31,6 @@ class MainPresenter extends BasePresenter
 	public function renderDefault()
 	{
 		$this->template->isManager = $this->getUser()->isInRole('beer_manager');
+		$this->template->userId = $this->getUser()->getId();
 	}
 }

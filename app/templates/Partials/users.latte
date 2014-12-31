@@ -12,7 +12,18 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="user in users">
-					<td>{{ user.name }}</td>
+					<td>
+						<a bs-modal 
+						   data-template="userAccountModal"
+						   data-animation="am-fade-and-scale"
+						   data-placement="center">
+							<i class="glyphicon glyphicon-pencil"
+							   data-placement="top" data-type="info"
+							   data-animation="am-fade-and-scale"
+							   bs-tooltip="'Změna uživatelských údajů'"></i>
+						</a>
+						{{ user.name }}
+					</td>
 					<td>
 						<span class="label label-{{ user.getRole().context }}"
 							  ng-bind-html="user.getRole().name"></span>
@@ -25,18 +36,22 @@
 							{{ user.lastSoup|date:'EEEE, d. M. y' }}
 						</a>
 					</td>
-					<td>
+					<td ng-class="{ 'text-danger': user.balance < 0 }">
 						{{ user.balance|currency:'Kč ':2 }}
 					</td>
 					<td>
-						<i class="glyphicon glyphicon-envelope"
-						   data-placement="top" data-type="info"
-						   data-animation="am-fade-and-scale"
-						   bs-tooltip="user.email"></i>
-						<i class="glyphicon glyphicon-earphone"
-						   data-placement="top" data-type="info"
-						   data-animation="am-fade-and-scale"
-						   bs-tooltip="user.phone"></i>
+						<a ng-href="mailto:{{ user.email }}">
+							<i class="glyphicon glyphicon-envelope"
+							   data-placement="top" data-type="info"
+							   data-animation="am-fade-and-scale"
+							   bs-tooltip="user.email"></i>
+						</a>
+						<a ng-href="tel:{{ user.phone }}">
+							<i class="glyphicon glyphicon-earphone"
+							   data-placement="top" data-type="info"
+							   data-animation="am-fade-and-scale"
+							   bs-tooltip="user.phone"></i>
+						</a>
 					</td>
 				</tr>
 			</tbody>
@@ -45,39 +60,157 @@
 </div>
 
 <!-- fragments to use as template -->
-<div class="hidden" ng-non-bindable>
-	<div id="userConsumptionModal" >
-		
+<div cache-template="userConsumptionModal">
+
+</div>
+<div cache-template="userCreditModal">
+	<table class="table">
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+		<tr>
+			<th>Celkem zaplaceno</th>
+			<td></td>
+		</tr>
+	</table>
+
+	<table class="table table-condensed">
+		<thead>
+			<tr>
+				<th>Datum</th>
+				<th>Částka</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="record in User.getCreditHistory(user.id) as history">
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div cache-template="userAccountModal">
+	<div class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="$hide()">&times;</button>
+					<h4 class="modal-title">Upravit uživatele #{{ user.id }}: {{ user.name }}</h4>
+					<span class="label label-{{ user.getRole().context }}" ng-bind-html="user.getRole().name"></span>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" novalidate ng-init="userAccount.initForm(user)">
+						<div class="form-group">
+							<label for="userName" class="col-sm-2 control-label">Jméno</label>
+							<div class="col-sm-10">
+								<div class="input-group">
+									<div class="input-group-addon">
+										<label>
+											<input type="checkbox" ng-model="userAccount.edit.name">
+											Upravit
+										</label>
+									</div>
+									<input type="text" class="form-control"
+										   ng-min-length="3"
+										   ng-readonly="!userAccount.edit.name"
+										   ng-model="userAccount.form.name"
+										   id="userName">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="userEmail" class="col-sm-2 control-label">Email</label>
+							<div class="col-sm-10">
+								<div class="input-group">
+									<div class="input-group-addon">
+										<label>
+											<input type="checkbox" ng-model="userAccount.edit.email">
+											Upravit
+										</label>
+									</div>
+									<input type="email" class="form-control"
+										   ng-readonly="!userAccount.edit.email"
+										   ng-model="userAccount.form.email"
+										   id="userName">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="userPhone" class="col-sm-2 control-label">Telefon</label>
+							<div class="col-sm-10">
+								<div class="input-group">
+									<div class="input-group-addon" n:syntax="off">
+										<label>
+											<input type="checkbox" ng-model="userAccount.edit.phone">
+											Upravit
+										</label>
+									</div>
+									<input type="text" class="form-control"
+										   ng-pattern="phonePattern"
+										   ng-readonly="!userAccount.edit.phone"
+										   ng-model="userAccount.form.phone"
+										   id="userName">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="userPhone" class="col-sm-2 control-label">Heslo</label>
+							<div class="col-sm-10">
+								<button type="button" class="btn btn-default" bs-popover
+										data-template="userAccountPasswordPopover"
+										data-placement="bottom">
+									Změnit heslo ...
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" ng-click="$hide()">Zrušit</button>
+					<button type="button" class="btn btn-default" ng-click="userAccount.saveForm()">Uložit</button>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div id="userCreditModal">
-		<table class="table">
-			<tr>
-				<th>Celkem zaplaceno</th>
-				<td></td>
-			</tr>
-			<tr>
-				<th>Celkem zaplaceno</th>
-				<td></td>
-			</tr>
-			<tr>
-				<th>Celkem zaplaceno</th>
-				<td></td>
-			</tr>
-		</table>
-		
-		<table class="table table-condensed">
-			<thead>
-				<tr>
-					<th>Datum</th>
-					<th>Částka</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="record in User.getCreditHistory(user.id) as history">
-					<td></td>
-					<td></td>
-				</tr>
-			</tbody>
-		</table>
+</div>
+
+<div cache-template="userAccountPasswordPopover">
+	<div class="popover">
+		<div class="arrow"></div>
+		<h3 class="popover-title">Změna hesla</h3>
+		<div class="popover-content">
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label for="passwordActual" class="col-sm-5 control-label">Aktuální heslo</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userAccount.password.actual"
+							   id="passwordActual">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="passwordNew1" class="col-sm-5 control-label">Nové heslo poprvé</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userAccount.password.new1"
+							   id="passwordNew1">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="passwordNew2" class="col-sm-5 control-label">Nové heslo podruhé</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userAccount.password.new2"
+							   id="passwordNew2">
+					</div>
+				</div>
+			</form>
+		</div>
 	</div>
 </div>

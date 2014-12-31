@@ -4,6 +4,6 @@ parameters:
 nette:
 	database:
 		dsn: 'mysql:host=127.0.0.1;dbname=futro'
-		user: root
-		password: root
+		user: futro
+		password: kumpan
 		options:

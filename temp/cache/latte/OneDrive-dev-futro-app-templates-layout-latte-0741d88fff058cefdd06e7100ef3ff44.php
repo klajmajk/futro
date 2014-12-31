@@ -2,27 +2,27 @@
 // source: C:\Users\novot_000\OneDrive\dev\futro\app/templates/@layout.latte
 
 // prolog Latte\Macros\CoreMacros
-list($_b, $_g, $_l) = $template->initialize('1893970198', 'html')
+list($_b, $_g, $_l) = $template->initialize('8755833433', 'html')
 ;
 // prolog Latte\Macros\BlockMacros
 //
 // block head
 //
-if (!function_exists($_b->blocks['head'][] = '_lbdf117054fb_head')) { function _lbdf117054fb_head($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['head'][] = '_lb590403ba3c_head')) { function _lb590403ba3c_head($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ;
 }}
 
 //
 // block content
 //
-if (!function_exists($_b->blocks['content'][] = '_lb1c9a5ac503_content')) { function _lb1c9a5ac503_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['content'][] = '_lbf4ba6cfd24_content')) { function _lbf4ba6cfd24_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ;
 }}
 
 //
 // block scripts
 //
-if (!function_exists($_b->blocks['scripts'][] = '_lb7c80a502b5_scripts')) { function _lb7c80a502b5_scripts($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['scripts'][] = '_lbba82dc2bbc_scripts')) { function _lbba82dc2bbc_scripts($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ;
 }}
 

@@ -56,9 +56,12 @@ class BasePresenter extends ResourcePresenter
 			$this->inputData = $this->getInputData();
 		
 		$relation = $this->getParameter('relation');
-		if ($relation !== null)
+		if ($relation !== null) {
 			$this->table = $this->db->table($relation)
 				->where($this->table->getName(), $this->getParameter('id'));
+			$this->deepListing = NULL;
+			$this->queryFilter = NULL;
+		}
 	}
 
 
@@ -82,15 +85,9 @@ class BasePresenter extends ResourcePresenter
 	 */
 	public function actionRead($id)
 	{
-		$nonRelation = $this->getParameter('relation') === NULL;
 		try {
-			if ((int) $id) {
-				$row = $this->table->get($id);
-				$this->resource = $row->toArray();
-				if ($nonRelation && $this->deepListing)
-					$this->getDeepData($this->resource, $row, $this->deepListing);
-			} else {
-				if ($nonRelation && is_array($this->queryFilter))
+			if ($id === NULL) {
+				if (is_array($this->queryFilter))
 					$this->filterTable();
 				$this->resource = array();
 				foreach ($this->table as $row) {
@@ -100,9 +97,20 @@ class BasePresenter extends ResourcePresenter
 						$dest = &$this->resource[];
 					}
 					$dest = $row->toArray();
-					if ($nonRelation && $this->deepListing)
+					if ($this->deepListing)
 						$this->getDeepData($dest, $row, $this->deepListing);
 				}
+			}  else if ((int) $id > 0 && (int) $id == $id) {
+				$row = $this->table->get($id);
+				if ($row === FALSE)
+					throw new \Exception ('No record for given ID.', 404);
+				$this->resource = $row->toArray();
+				if ($this->deepListing)
+					$this->getDeepData($this->resource, $row, $this->deepListing);
+			} else {
+				throw new \Exception('Request URL does not follow convention'.
+						' /item/id/relation/relationId.'.
+						' Valid ID is positive non zero integer', 400);
 			}
 		} catch (\Exception $ex) {
 			$this->sendErrorResource($ex);
@@ -178,7 +186,7 @@ class BasePresenter extends ResourcePresenter
 	public function actionUpdate($id)
 	{
 		try {
-			$id = (int) $id ?: $this->inputData['id'];
+			$id = empty($this->inputData['id']) ? (int) $id : $this->inputData['id'];
 			unset($this->inputData['date_add']);
 			$row = $this->table->get($id);
 			$row->update($this->inputData);

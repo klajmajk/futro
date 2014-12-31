@@ -17,6 +17,8 @@ kumpaniumControllers
 					while (i--)
 						objects[i].checked = !!action;
 				};
+			// validation patterns
+			$rootScope.phonePattern = /^[\+\d\s]{9,}$/;
 		})
 
 		.controller('newsConstroller', ['$scope', 'API', '$q', '$rootScope', 'User',
@@ -36,9 +38,39 @@ kumpaniumControllers
 				});
 			}])
 
-		.controller('usersController', ['$scope',
-			function ($scope) {
-				
+		.controller('usersController', ['$scope', '$rootScope', 'User',
+			function ($scope, $rootScope, User) {
+				$scope.userAccount = {
+					user: {},
+					form: {},
+					edit: {},
+					password: {},
+					initForm: function(user) {
+						this.user = user;
+						this.form = {
+							name: user.name,
+							email: user.email,
+							phone: user.phone
+						}
+						this.edit = {};
+						this.password = {};
+					},
+					saveForm: function() {
+						var changes = false;
+						for (var field in this.form)
+							if(this.form.hasOwnProperty(field) &&
+									this.edit[field] && this.form[field]) {
+								changes = true;
+								this.user[field] = this.form[field];
+							}
+							
+						if (changes || this.password.new1) {
+							console.log(this.user);
+							this.user.password = this.password;
+							return this.user.$save();
+						}													
+					}
+				};
 			}])
 
 		.controller('stockController', ['$scope', 'API', '$alert',

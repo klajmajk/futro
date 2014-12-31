@@ -13,7 +13,6 @@ use Nette,
 class UserPresenter extends BasePresenter
 {
 
-
 	public function actionRead($id)
 	{
 		if (!(int) $id)
@@ -22,6 +21,15 @@ class UserPresenter extends BasePresenter
 					->group('user.name');
 
 		parent::actionRead($id);
+	}
+	
+	public function actionUpdate($id)
+	{
+		unset($this->inputData['password'],
+				$this->inputData['balance'],
+				$this->inputData['role'],
+				$this->inputData['last_soup']);
+		parent::actionUpdate($id);
 	}
 
 	public function actionReadCredit($id)

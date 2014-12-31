@@ -121,7 +121,7 @@
 	<div class="keg-info" ng-init="keg.getConsumption()">
 		<div class="row">
 			<div class="col-xs-3 text-right"><strong>Stav</strong></div>
-			<div class="col-xs-3" ng-bind-html="keg.state|kegState"></div>
+			<div class="col-xs-3" ng-bind-html="keg.getStateLabel()"></div>
 			<div class="col-xs-3 text-right"><strong>Cena za sud</strong></div>
 			<div class="col-xs-3">{{ keg.price | currency:'Kč ':2}}</div>
 		</div>

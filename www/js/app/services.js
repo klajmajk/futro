@@ -8,7 +8,7 @@ kumpaniumServices
 
 		.factory('API', ['$resource', '$cacheFactory',
 			function ($resource, $cacheFactory) {
-				var apiPath = '/futro/www/futro/';
+				var apiPath = '/futro/';
 				
 				return function (presenter) {
 					var paramDefaults = apiPath + presenter + '/:id/:relation/:relationId';
@@ -49,8 +49,8 @@ kumpaniumServices
 				};
 			}])
 
-		.factory('User', ['API', '$window',
-			function (API, $window) {
+		.factory('User', ['API',
+			function (API) {
 				var HONZA_DVORAK_ID = 4;
 				var User = API('user');
 				var roles = {
@@ -69,11 +69,6 @@ kumpaniumServices
 					guest: {
 						name: 'Podkumpán',
 						context: 'default'
-					},
-					dvorak: {
-						name: '<i class="glyphicon glyphicon-star"></i> Mecenáš ' +
-								'<i class="glyphicon glyphicon-star"></i>',
-						context: 'warning'
 					}
 				};
 				
@@ -82,8 +77,17 @@ kumpaniumServices
 						return User.query({id: this.id, relation: 'credit'});
 					},
 					getRole: function (role, id) {
-						return roles[(id || this.id) === HONZA_DVORAK_ID ?
-							'dvorak' : (role || this.role)];
+						var dvorak = {
+							name: '<i class="glyphicon glyphicon-star"></i> Mecenáš ' +
+									'<i class="glyphicon glyphicon-star"></i>',
+							context: 'warning'
+						};
+												
+						return (id || this.id) === HONZA_DVORAK_ID ? dvorak :
+								roles[role || this.role];
+					},
+					getRoles: function() {
+						return roles;
 					}
 				});
 				
@@ -101,7 +105,7 @@ kumpaniumServices
 						{text: 'Na čepu', context: 'warning'},
 						{text: 'Vypito', context: 'default'}
 					],
-					volumes: [5000, 10000, 15000, 20000, 30000, 50000],
+					volumes: [5000, 10000, 15000, 20000, 25000, 30000, 50000],
 					isValid: function () {
 						return this.volumes.indexOf(this.volume) !== -1 &&								
 								this.beer > 0 && (this.price >= 0.01 || this.price === 0);

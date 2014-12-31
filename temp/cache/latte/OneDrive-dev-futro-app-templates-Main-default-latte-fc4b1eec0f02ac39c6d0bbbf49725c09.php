@@ -2,27 +2,27 @@
 // source: C:\Users\novot_000\OneDrive\dev\futro\app/templates/Main/default.latte
 
 // prolog Latte\Macros\CoreMacros
-list($_b, $_g, $_l) = $template->initialize('7579295185', 'html')
+list($_b, $_g, $_l) = $template->initialize('7359701753', 'html')
 ;
 // prolog Latte\Macros\BlockMacros
 //
 // block app
 //
-if (!function_exists($_b->blocks['app'][] = '_lbf9bf26fc31_app')) { function _lbf9bf26fc31_app($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['app'][] = '_lbf9c1b86b3d_app')) { function _lbf9c1b86b3d_app($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?>kumpanium<?php
 }}
 
 //
 // block cssp
 //
-if (!function_exists($_b->blocks['cssp'][] = '_lb5463dd3468_cssp')) { function _lb5463dd3468_cssp($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['cssp'][] = '_lb2cf2d8514d_cssp')) { function _lb2cf2d8514d_cssp($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?>main.cssp<?php
 }}
 
 //
 // block head
 //
-if (!function_exists($_b->blocks['head'][] = '_lbd0d299f82b_head')) { function _lbd0d299f82b_head($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['head'][] = '_lbb1718c16ff_head')) { function _lbb1718c16ff_head($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?><link rel="stylesheet" href="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>
 /css/angular-chart.css"><?php
 }}
@@ -30,8 +30,9 @@ if (!function_exists($_b->blocks['head'][] = '_lbd0d299f82b_head')) { function _
 //
 // block scripts
 //
-if (!function_exists($_b->blocks['scripts'][] = '_lb25454f2dc2_scripts')) { function _lb25454f2dc2_scripts($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
-?><script>var isManager = <?php echo Latte\Runtime\Filters::escapeJs($isManager) ?></script>
+if (!function_exists($_b->blocks['scripts'][] = '_lb43bb3c42d3_scripts')) { function _lb43bb3c42d3_scripts($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+?><script>var isManager = <?php echo Latte\Runtime\Filters::escapeJs($isManager) ?>
+; var currentUserId = <?php echo Latte\Runtime\Filters::escapeJs($userId) ?>;</script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-route.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.min.js"></script>
@@ -52,7 +53,7 @@ if (!function_exists($_b->blocks['scripts'][] = '_lb25454f2dc2_scripts')) { func
 //
 // block content
 //
-if (!function_exists($_b->blocks['content'][] = '_lb679446d3cb_content')) { function _lb679446d3cb_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
+if (!function_exists($_b->blocks['content'][] = '_lb20ba4e7eac_content')) { function _lb20ba4e7eac_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?><div class="site-wrapper">
 	<a id="exit" href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Sign:out"), ENT_COMPAT) ?>
 ">
