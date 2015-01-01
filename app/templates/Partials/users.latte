@@ -33,7 +33,7 @@
 						   data-content-template="userConsumptionModal"
 						   data-animation="am-fade-and-scale"
 						   data-placement="center">
-							{{ user.lastSoup|date:'EEEE, d. M. y' }}
+							{{ user.lastTap|date:'EEEE, d. M. y' }}
 						</a>
 					</td>
 					<td ng-class="{ 'text-danger': user.balance < 0 }">
@@ -173,7 +173,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" ng-click="$hide()">Zrušit</button>
-					<button type="button" class="btn btn-default" ng-click="userAccount.saveForm()">Uložit</button>
+					<button type="button" class="btn btn-default" ng-click="userAccount.saveForm().then($hide())">Uložit</button>
 				</div>
 			</div>
 		</div>
@@ -187,11 +187,11 @@
 		<div class="popover-content">
 			<form class="form-horizontal">
 				<div class="form-group">
-					<label for="passwordActual" class="col-sm-5 control-label">Aktuální heslo</label>
+					<label for="passwordOld" class="col-sm-5 control-label">Aktuální heslo</label>
 					<div class="col-sm-7">
 						<input type="password" class="form-control"
-							   ng-model="userAccount.password.actual"
-							   id="passwordActual">
+							   ng-model="userAccount.password.old"
+							   id="passwordOld">
 					</div>
 				</div>
 				<div class="form-group">

@@ -3,7 +3,7 @@
 namespace App\ApiModule\Presenters;
 
 use Nette,
-	Drahak\Restful\IResource;
+	Drahak\Restful\Application\BadRequestException;
 
 /**
  * CRUD resource presenter
@@ -22,21 +22,21 @@ class TapPresenter extends BasePresenter
 
 	public function actionCreate()
 	{
-		$e = new \Exception('Tap cannot be created', 403);
+		$e = BadRequestException::methodNotSupported('Tap cannot be created');
 		$this->sendErrorResource($e);
 	}
 
 
 	public function actionUpdate($id)
 	{
-		$e = new \Exception('Tap cannot be modified', 403);
+		$e = BadRequestException::methodNotSupported('Tap cannot be modified');
 		$this->sendErrorResource($e);
 	}
 
 
 	public function actionDelete($id)
 	{
-		$e = new \Exception('Tap cannot be deleted', 403);
+		$e = BadRequestException::methodNotSupported('Tap cannot be deleted');
 		$this->sendErrorResource($e);
 	}
 

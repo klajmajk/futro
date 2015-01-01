@@ -3,8 +3,13 @@
 namespace App\ApiModule\Presenters;
 
 use Nette,
+	Nette\Database,
+	Nette\Database\Table\ActiveRow,
+	Drahak\Restful,
+	Drahak\Restful\Converters,
 	Drahak\Restful\IResource,
-	Drahak\Restful\Application\UI\ResourcePresenter;
+	Drahak\Restful\Application\UI\ResourcePresenter,
+	Drahak\Restful\Application\BadRequestException;
 
 /**
  * CRUD resource presenter
@@ -13,9 +18,6 @@ use Nette,
  */
 class BasePresenter extends ResourcePresenter
 {
-
-	const DATE_FORMAT = Nette\Utils\DateTime::ISO8601;
-
 	/** @var Nette\Database\Context */
 	protected $db;
 
@@ -32,7 +34,7 @@ class BasePresenter extends ResourcePresenter
 	protected $inputData;
 
 
-	public function __construct(Nette\Database\Context $database)
+	public function __construct(Database\Context $database)
 	{
 		parent::__construct();
 
@@ -44,23 +46,36 @@ class BasePresenter extends ResourcePresenter
 	
 	public function startup()
 	{
-		if ($this->getAction() === 'create' AND
-				(int) $this->getParameter('id') ||
-				!empty($this->input->getData()['id'])) {
-			$this->changeAction('update');
-		}
-		
-		parent::startup();
-		
-		if ($this->getAction() !== 'read' && !$this->inputData)
-			$this->inputData = $this->getInputData();
-		
-		$relation = $this->getParameter('relation');
-		if ($relation !== null) {
-			$this->table = $this->db->table($relation)
-				->where($this->table->getName(), $this->getParameter('id'));
-			$this->deepListing = NULL;
-			$this->queryFilter = NULL;
+		try {
+			$id = $this->getParameter('id');
+			if ($id !== NULL && $this->isValidId($id) === FALSE)
+				throw BadRequestException::methodNotSupported(
+						'Url must follow convention /presenter/id/relation/relationId.'.
+						' Valid ID is only positive, non zero integer.');
+			
+			$id = $this->isValidId($id);			
+			$input = $this->input->getData();
+			if (isset($input['id']) && $this->isValidId($input['id']) !== $id)
+				throw BadRequestException::unprocessableEntity(
+						array('ID in request body not match to ID in url'));
+			
+			if ($this->getAction() === 'create' && $id !== FALSE)
+				$this->changeAction('update');
+
+			parent::startup();
+
+			if ($this->getAction() !== 'read')
+				$this->inputData = $this->inputData ?: $this->getInputData();
+
+			$relation = $this->getParameter('relation');			
+			if ($relation !== NULL) {				
+				$this->table = $this->db->table($relation)
+						->where($this->table->getName(), $id);
+				$this->deepListing = NULL;
+				$this->queryFilter = NULL;
+			}
+		} catch (BadRequestException $ex) {
+			$this->sendErrorResource($ex);
 		}
 	}
 
@@ -75,7 +90,7 @@ class BasePresenter extends ResourcePresenter
 		$offset = strrpos($className, "\\") + 1;
 		$tableName = substr($className, $offset, -9);
 
-		return \Drahak\Restful\Utils\Strings::toSnakeCase($tableName);
+		return Restful\Utils\Strings::toSnakeCase($tableName);
 	}
 
 
@@ -100,19 +115,15 @@ class BasePresenter extends ResourcePresenter
 					if ($this->deepListing)
 						$this->getDeepData($dest, $row, $this->deepListing);
 				}
-			}  else if ((int) $id > 0 && (int) $id == $id) {
+			}  else {
 				$row = $this->table->get($id);
 				if ($row === FALSE)
-					throw new \Exception ('No record for given ID.', 404);
+					throw BadRequestException::notFound('No record for ID: '.$id);
 				$this->resource = $row->toArray();
 				if ($this->deepListing)
 					$this->getDeepData($this->resource, $row, $this->deepListing);
-			} else {
-				throw new \Exception('Request URL does not follow convention'.
-						' /item/id/relation/relationId.'.
-						' Valid ID is positive non zero integer', 400);
 			}
-		} catch (\Exception $ex) {
+		} catch (BadRequestException $ex) {
 			$this->sendErrorResource($ex);
 		}
 		// sendResource() call Nette\AbortException, so it has to be outisde try {} catch {} block
@@ -144,11 +155,11 @@ class BasePresenter extends ResourcePresenter
 	 * @param \Nette\Database\Table\ActiveRow $row
 	 * @param array $map
 	 */
-	protected function getDeepData(array &$dest, \Nette\Database\Table\ActiveRow $row, array $map)
+	protected function getDeepData(array &$dest, ActiveRow $row, array $map)
 	{
 		foreach ($map as $key => $val) {
 			if (is_array($val)) {
-				if (!is_int($dest[$key]))
+				if ($this->isValidId($dest[$key]) === FALSE)
 					continue;
 				$dest[$key] = $row->ref($key)->toArray();
 				$this->getDeepData($dest[$key], $row->ref($key), $val);
@@ -170,6 +181,9 @@ class BasePresenter extends ResourcePresenter
 	public function actionCreate()
 	{
 		try {
+			if (empty($this->inputData['date_add']))
+				$this->inputData['date_add'] = new \Nette\Utils\DateTime();
+			$this->harmonizeInputData();
 			$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();
 		} catch (\Exception $ex) {
@@ -186,9 +200,9 @@ class BasePresenter extends ResourcePresenter
 	public function actionUpdate($id)
 	{
 		try {
-			$id = empty($this->inputData['id']) ? (int) $id : $this->inputData['id'];
-			unset($this->inputData['date_add']);
+			unset($this->inputData['date_add'], $this->inputData['id']);
 			$row = $this->table->get($id);
+			$this->harmonizeInputData($row);				
 			$row->update($this->inputData);
 			$this->resource = $row->toArray();
 		} catch (\Exception $ex) {
@@ -206,7 +220,6 @@ class BasePresenter extends ResourcePresenter
 	{
 		$this->resource->action = 'Delete';
 		try {
-			$id = (int) $id ?: $this->inputData['id'];
 			$this->table->get($id)->delete();
 			$this->resource->id = $id;
 		} catch (\Exception $ex) {
@@ -218,36 +231,62 @@ class BasePresenter extends ResourcePresenter
 
 	/**
 	 * Parse input data for inserting to database
-	 * @param bool $flatten flatten nested arrays
 	 * @return type
 	 */
-	protected function getInputData($flatten = true)
+	protected function getInputData()
 	{
-		$converter = new \Drahak\Restful\Converters\SnakeCaseConverter();
-		$data = $converter->convert($this->input->getData());
-		
-		if ($flatten) {
-			foreach ($data as $key => &$value) {
-				if (is_array($value)) {
-					if (!empty($value['id']))
-						$value = (int) $value['id'];
-					else
-						unset($data[$key]);
-				}
-			}
-		}
+		$converter = new Converters\SnakeCaseConverter();
+		$data = $this->getInput()->getData();
 
-		return $data;
+		return $converter->convert($data);
 	}
 
 
 	protected function normalizeDate(array &$input)
 	{
-		foreach ($input as $key => &$inpt)
-			if ($timestamp = strtotime($inpt)) {
-				$inpt = new Nette\Utils\DateTime();
-				$inpt->setTimestamp($timestamp);
+		foreach ($input as &$value)
+			if (strtotime($value))
+				$value = new Nette\Utils\DateTime($value);
+	}
+
+	/**
+	 * Prepare $this->inputData for inserting into DB, cleans data
+	 * according to existing columns in table and flatten nested arrays
+	 * @param \Nette\Database\Table\ActiveRow $row
+	 */
+	protected function harmonizeInputData($row = NULL)
+	{
+		if (!$row) {			
+			$res = $this->table->limit(1)->fetchAll();
+			$row = reset($res);
+		}
+		
+		foreach ($this->inputData as $key => &$value)
+			if ($row && !$row->offsetExists($key)) {
+				unset($this->inputData[$key]);
+			} else if (is_array($value)) {
+				if ($this->isValidId($value['id'])) {
+					$value = (int) $value['id'];
+				} else {
+					unset($this->inputData[$key]);
+				}
 			}
+	}
+	
+	/**
+	 * Returns valided and typecasted ID or FALSE if not valid
+	 * @param mixed $id
+	 * @return mixed
+	 */
+	protected final function isValidId($id)
+	{
+		$options = array(
+			'options' => array(
+				'min_range' => 1
+			)
+		);
+		
+		return filter_var($id, FILTER_VALIDATE_INT, $options);
 	}
 
 

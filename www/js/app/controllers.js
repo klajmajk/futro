@@ -65,9 +65,9 @@ kumpaniumControllers
 							}
 							
 						if (changes || this.password.new1) {
-							console.log(this.user);
 							this.user.password = this.password;
-							return this.user.$save();
+							console.log(this.user);
+							return this.user.$save().$promise;
 						}													
 					}
 				};
