@@ -86,51 +86,6 @@ html, body
 	color: #999 // IE8 proofing
 	color: rgba(255,255,255,.5)
 
-// angular strap modal
-.modal
-	&.center
-		position: fixed
-		top: 40%
-		left: 50%
-		min-width: 320px
-		max-width: 630px
-		width: 50%
-		-webkit-transform: translateX(-50%) translateY(-50%)
-		transform: translateX(-50%) translateY(-50%)		
-	&-backdrop.am-fade
-		opacity: .5
-		transition: opacity .15s linear
-		&.ng-enter
-			opacity: 0
-			&.ng-enter-active
-				opacity: .5
-		&.ng-leave
-			opacity: .5
-			&.ng-leave-active
-				opacity: 0
-
-body > div.consumption-popover
-	max-width: 600px
-
-.keg-info
-	.row
-		padding: 5px 20px
-	.progress
-		margin-bottom: 0px	
-	.consumption_table
-			max-height: 450px
-
-// angular strap collapse
-.collapse.am-collapse
-	animation-duration: .3s
-	animation-timing-function: ease
-	animation-fill-mode: backwards
-	overflow: hidden
-	&.in-remove
-		animation-name: collapse
-		display: block
-	&.in-add
-		animation-name: expand
 
 #exit
 	position:absolute
@@ -138,6 +93,7 @@ body > div.consumption-popover
 	height: 50px
 	background-color: #FFF
 	padding: 3px
+
 
 // Affix and center
 @media (min-width: 768px)

@@ -1,0 +1,57 @@
+// angular strap modal
+.modal
+	&.center
+		position: fixed
+		top: 40%
+		left: 50%
+		min-width: 320px
+		max-width: 630px
+		width: 50%
+		-webkit-transform: translateX(-50%) translateY(-50%)
+		transform: translateX(-50%) translateY(-50%)		
+	&-backdrop.am-fade
+		opacity: .5
+		transition: opacity .15s linear
+		&.ng-enter
+			opacity: 0
+			&.ng-enter-active
+				opacity: .5
+		&.ng-leave
+			opacity: .5
+			&.ng-leave-active
+				opacity: 0
+
+body > div.consumption-popover
+	max-width: 600px
+
+.keg-info
+	.row
+		padding: 5px 20px
+	.progress
+		margin-bottom: 0px	
+	.consumption_table
+			max-height: 450px
+
+// angular strap collapse
+.collapse.am-collapse
+	animation-duration: .3s
+	animation-timing-function: ease
+	animation-fill-mode: backwards
+	overflow: hidden
+	&.in-remove
+		animation-name: collapse
+		display: block
+	&.in-add
+		animation-name: expand
+
+// angular form validation, TODO: CURRENTLY UNUSED
+form
+	.ng-valid // the model is valid
+	.ng-invalid // the model is invalid
+	.ng-valid-[key] // for each valid key added by $setValidity
+	.ng-invalid-[key] // for each invalid key added by $setValidity
+	.ng-pristine // the control hasn't been interacted with yet
+	.ng-dirty // the control has been interacted with
+	.ng-touched // the control has been blurred
+	.ng-untouched // the control hasn't been blurred
+	.ng-pending // any $asyncValidators are unfulfilled

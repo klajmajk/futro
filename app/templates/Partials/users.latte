@@ -5,51 +5,40 @@
 				<tr>
 					<th>Jméno</th>
 					<th>Status</th>
-					<th>Naposledy čepoval</th>
+					<th>Posledně čepoval</th>
 					<th>Bilance</th>
-					<th></th>
+					<th>Kontakt</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="user in users">
 					<td>
-						<a bs-modal 
-						   data-template="userAccountModal"
-						   data-animation="am-fade-and-scale"
-						   data-placement="center">
-							<i class="glyphicon glyphicon-pencil"
-							   data-placement="top" data-type="info"
-							   data-animation="am-fade-and-scale"
-							   bs-tooltip="'Změna uživatelských údajů'"></i>
-						</a>
+						<span class="anchor-like" bs-modal data-template="userEditModal">
+							<i class="glyphicon glyphicon-pencil"></i>
+						</span>
 						{{ user.name }}
 					</td>
+					<td ng-bind-html="user.getRoleLabel()"></td>
 					<td>
-						<span class="label label-{{ user.getRole().context }}"
-							  ng-bind-html="user.getRole().name"></span>
+						<span class="anchor-like" bs-modal data-template="userConsumptionModal">
+							<i class=" glyphicon glyphicon-tint"></i>
+						</span>
+						{{ user.lastTap|date:'EEEE, d. M. y' }}
 					</td>
 					<td>
-						<a bs-modal data-title="Spotřeba {{ user.name }}"
-						   data-content-template="userConsumptionModal"
-						   data-animation="am-fade-and-scale"
-						   data-placement="center">
-							{{ user.lastTap|date:'EEEE, d. M. y' }}
-						</a>
-					</td>
-					<td ng-class="{ 'text-danger': user.balance < 0 }">
-						{{ user.balance|currency:'Kč ':2 }}
+						<span class="anchor-like" bs-modal data-template="userCreditModal">
+							<i class="glyphicon glyphicon-plus"></i>
+						</span>
+						<span ng-class="{ 'text-danger': user.balance < 0 }"
+							  ng-bind="user.balance|currency:'Kč ':2"></span>
 					</td>
 					<td>
 						<a ng-href="mailto:{{ user.email }}">
 							<i class="glyphicon glyphicon-envelope"
-							   data-placement="top" data-type="info"
-							   data-animation="am-fade-and-scale"
 							   bs-tooltip="user.email"></i>
 						</a>
 						<a ng-href="tel:{{ user.phone }}">
 							<i class="glyphicon glyphicon-earphone"
-							   data-placement="top" data-type="info"
-							   data-animation="am-fade-and-scale"
 							   bs-tooltip="user.phone"></i>
 						</a>
 					</td>
@@ -59,10 +48,24 @@
 	</div>
 </div>
 
-<!-- fragments to use as template -->
+<!-- popovers and modals to use as template -->
 <div cache-template="userConsumptionModal">
-
+	<div class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="$hide()">&times;</button>
+					<h4 class="modal-title">Spotřeba {{ user.name }}</h4>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+
 <div cache-template="userCreditModal">
 	<table class="table">
 		<tr>
@@ -95,31 +98,31 @@
 	</table>
 </div>
 
-<div cache-template="userAccountModal">
+<div cache-template="userEditModal">
 	<div class="modal" tabindex="-1" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" ng-click="$hide()">&times;</button>
 					<h4 class="modal-title">Upravit uživatele #{{ user.id }}: {{ user.name }}</h4>
-					<span class="label label-{{ user.getRole().context }}" ng-bind-html="user.getRole().name"></span>
+					<span ng-bind-html="user.getRoleLabel()"></span>
 				</div>
 				<div class="modal-body">
-					<form class="form-horizontal" novalidate ng-init="userAccount.initForm(user)">
+					<form class="form-horizontal" name="userEdit.form" novalidate ng-init="userEdit.init(user)">
 						<div class="form-group">
 							<label for="userName" class="col-sm-2 control-label">Jméno</label>
 							<div class="col-sm-10">
 								<div class="input-group">
 									<div class="input-group-addon">
 										<label>
-											<input type="checkbox" ng-model="userAccount.edit.name">
+											<input type="checkbox" ng-model="userEdit.edit.name">
 											Upravit
 										</label>
 									</div>
 									<input type="text" class="form-control"
-										   ng-min-length="3"
-										   ng-readonly="!userAccount.edit.name"
-										   ng-model="userAccount.form.name"
+										   ng-min-length="3" required
+										   ng-readonly="!userEdit.edit.name"
+										   ng-model="userEdit.model.name"
 										   id="userName">
 								</div>
 							</div>
@@ -130,13 +133,13 @@
 								<div class="input-group">
 									<div class="input-group-addon">
 										<label>
-											<input type="checkbox" ng-model="userAccount.edit.email">
+											<input type="checkbox" ng-model="userEdit.edit.email">
 											Upravit
 										</label>
 									</div>
 									<input type="email" class="form-control"
-										   ng-readonly="!userAccount.edit.email"
-										   ng-model="userAccount.form.email"
+										   ng-readonly="!userEdit.edit.email"
+										   ng-model="userEdit.model.email"
 										   id="userName">
 								</div>
 							</div>
@@ -147,14 +150,13 @@
 								<div class="input-group">
 									<div class="input-group-addon" n:syntax="off">
 										<label>
-											<input type="checkbox" ng-model="userAccount.edit.phone">
+											<input type="checkbox" ng-model="userEdit.edit.phone">
 											Upravit
 										</label>
 									</div>
-									<input type="text" class="form-control"
-										   ng-pattern="phonePattern"
-										   ng-readonly="!userAccount.edit.phone"
-										   ng-model="userAccount.form.phone"
+									<input type="text" data-valid-phone name="phone" class="form-control"
+										   ng-readonly="!userEdit.edit.phone"
+										   ng-model="userEdit.model.phone"
 										   id="userName">
 								</div>
 							</div>
@@ -163,8 +165,8 @@
 							<label for="userPhone" class="col-sm-2 control-label">Heslo</label>
 							<div class="col-sm-10">
 								<button type="button" class="btn btn-default" bs-popover
-										data-template="userAccountPasswordPopover"
-										data-placement="bottom">
+										data-template="userEditPasswordPopover"
+										data-placement="top">
 									Změnit heslo ...
 								</button>
 							</div>
@@ -173,14 +175,14 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" ng-click="$hide()">Zrušit</button>
-					<button type="button" class="btn btn-default" ng-click="userAccount.saveForm().then($hide())">Uložit</button>
+					<button type="button" class="btn btn-primary" ng-click="userEdit.save().then($hide())">Uložit</button>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div cache-template="userAccountPasswordPopover">
+<div cache-template="userEditPasswordPopover">
 	<div class="popover">
 		<div class="arrow"></div>
 		<h3 class="popover-title">Změna hesla</h3>
@@ -190,7 +192,7 @@
 					<label for="passwordOld" class="col-sm-5 control-label">Aktuální heslo</label>
 					<div class="col-sm-7">
 						<input type="password" class="form-control"
-							   ng-model="userAccount.password.old"
+							   ng-model="userEdit.password.old"
 							   id="passwordOld">
 					</div>
 				</div>
@@ -198,7 +200,7 @@
 					<label for="passwordNew1" class="col-sm-5 control-label">Nové heslo poprvé</label>
 					<div class="col-sm-7">
 						<input type="password" class="form-control"
-							   ng-model="userAccount.password.new1"
+							   ng-model="userEdit.password.new1"
 							   id="passwordNew1">
 					</div>
 				</div>
@@ -206,7 +208,7 @@
 					<label for="passwordNew2" class="col-sm-5 control-label">Nové heslo podruhé</label>
 					<div class="col-sm-7">
 						<input type="password" class="form-control"
-							   ng-model="userAccount.password.new2"
+							   ng-model="userEdit.password.new2"
 							   id="passwordNew2">
 					</div>
 				</div>

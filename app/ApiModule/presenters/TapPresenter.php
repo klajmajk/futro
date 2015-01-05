@@ -19,6 +19,13 @@ class TapPresenter extends BasePresenter
 
 		$this->deepListing = array('keg' => array('beer' => array('brewery')));
 	}
+	
+	public function actionRead($id)
+	{
+		$this->table = $this->table->select('tap.*, SUM(keg:consumption.volume) AS poured');
+		
+		parent::actionRead($id);
+	}
 
 	public function actionCreate()
 	{

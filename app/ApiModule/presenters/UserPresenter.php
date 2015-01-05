@@ -2,7 +2,8 @@
 
 namespace App\ApiModule\Presenters;
 
-use Nette\Security,
+use App\Security,
+	Drahak\Restful\Validation\IValidator,
 	Drahak\Restful\Application\BadRequestException;
 
 /**
@@ -12,6 +13,23 @@ use Nette\Security,
  */
 class UserPresenter extends BasePresenter
 {
+	
+	const PHONE_PATTERN = '#^[\+\d\s]{9,}$#';
+	
+	public static $roles = array('guest', 'kumpan', 'beer_manager', 'super_admin');
+	
+	public function validateCreate()
+	{
+		$this->input->field('name')->addRule(IValidator::REQUIRED, 'Missing required field: name.');
+		$this->input->field('email')->addRule(IValidator::REQUIRED, 'Missing required field: email.');
+		$this->input->field('password')->addRUle(array($this, 'validateNewPassword'), 'Bad format of new password.');
+	}
+	
+	public function validateUpdate()
+	{
+		$this->input->field('email')->addRule(IValidator::EMAIL, 'Invalid email address.');
+		$this->input->field('phone')->addRule(IValidator::PATTERN, 'Invalid phone number.', self::PHONE_PATTERN);
+	}
 
 	public function actionRead($id)
 	{
@@ -25,15 +43,23 @@ class UserPresenter extends BasePresenter
 	
 	public function actionUpdate($id)
 	{		
+		unset($this->inputData['balance'],
+				$this->inputData['role']);
 		if (!empty($this->inputData['password'])) {
 			$this->validatePasswordUpdate($id);
 		} else {
 			unset($this->inputData['password']);
 		}
-		unset($this->inputData['balance'],
-				$this->inputData['role']);
 
 		parent::actionUpdate($id);
+	}
+	
+	public function actionCreate()
+	{
+		$this->inputData['password'] = $this->generatePasswordHash($this->inputData['password']);
+		$this->inputData['role'] = self::$roles[0];
+		
+		parent::actionCreate();
 	}
 
 	public function actionReadCredit($id)
@@ -66,13 +92,20 @@ class UserPresenter extends BasePresenter
 			if (count($errors) > 0)
 				throw BadRequestException::unprocessableEntity ($errors, 'Probably typing error.');
 			
-			Security\Passwords::validateNew($password[$entries[1]]);
+			$this->validateNewPassword($password[$entries[1]]);
 			$this->inputData['password'] = $this->generatePasswordHash($password[$entries[1]]);
 		} catch (BadRequestException $ex) {
 			$this->sendErrorResource($ex);
+		}
+	}
+	
+	private function validateNewPassword($password) {
+		try {
+			Security\Passwords::validateNew($password);
+			return true;
 		} catch (Nette\UnexpectedValueException $ex) {
-			$this->sendErrorResource(BadRequestException::unprocessableEntity(
-					array($ex->getMessage(), 'Bad format for new password.')));
+			throw BadRequestException::unprocessableEntity(
+					array($ex->getMessage), 'Bad format of new password.');
 		}
 	}
 

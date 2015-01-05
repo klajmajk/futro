@@ -13,34 +13,27 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="keg in kegs|orderBy:'-state'">
-					<td>{{ keg.id }}</td>
-					<td>{{ keg.beer.brewery.name + ' ' + keg.beer.name}}</td>
-					<td>{{ keg.volume|liters}}</td>
-					<td>{{ keg.dateAdd|date:'d. M. yyyy'}}</td>
-					<td>{{ keg.price|currency:'Kč ':2}}</td>
+				<tr ng-repeat="keg in kegs|orderBy:'-state' track by keg.id">
+					<td ng-bind="::keg.id"></td>
+					<td ng-bind="::(keg.beer.brewery.name + ' ' + keg.beer.name)"></td>
+					<td ng-bind="::keg.volume|liters"></td>
+					<td ng-bind="::keg.dateAdd|date:'d. M. yyyy'"></td>
+					<td ng-bind="::keg.price|currency:'Kč ':2"></td>
+					<td ng-bind-html="keg.getStateLabel()"></td>
 					<td>
-						<span ng-bind-html="keg.getStateLabel()"></span>
-						<i class="glyphicon glyphicon-refresh"
-						   data-animation="am-flip-x" bs-dropdown="keg.getAllowedStates()"
-						   data-placement="bottom-right" data-html="true"
-						   ></i>
+						<span class="anchor-like" bs-modal data-template="kegDetailModal">
+							<i class="glyphicon glyphicon-search"></i>
+						</span>
 					</td>
-					<td><i class="glyphicon glyphicon-search" bs-modal
-						   data-title="Detail sudu # {{ keg.idKeg}} –
-						   {{ keg.beer.brewery.name + ' ' + keg.beer.name}}"
-						   data-content-template="stockModal"
-						   data-animation="am-fade-and-scale"
-						   data-placement="center"></i></td>
 				</tr>
 			</tbody>
 			<tfoot>
 				<tr>
 					<th></th>
-					<th>{{ kegs|total}} ks</th>
-					<th>{{ kegs|total:'volume'|liters}}</th>
+					<th ng-bind="(kegs|total) + ' ks'"></th>
+					<th ng-bind="kegs|total:'volume'|liters"></th>
 					<th></th>
-					<th>{{ kegs|total:'price'|currency:'Kč ':2}}</th>
+					<th ng-bind="kegs|total:'price'|currency:'Kč ':2"></th>
 					<th></th>
 					<th></th>
 				</tr>
@@ -49,49 +42,42 @@
 	</div>
 </div>
 
+{* kegAdd form *}
 <div class="panel panel-default">
-	<div class="panel-heading">Přidat sudy na sklad</div>
+	<div class="panel-heading" ng-init="kegAdd.init()">Přidat sudy na sklad</div>
 	<div class="panel-body">
-		<form class="form-horizontal" role="form">
+		<form class="form-horizontal" name="kegAdd.form" novalidate show-errors>
 			<div class="form-group">
 				<label for="quantity" class="col-sm-4 control-label">Počet sudů:</label>
 				<div class="col-sm-2">
-					<input type="number" min="1" step="1" tabindex="5"
-						   class="form-control" id="quantity" ng-model="newStock.quantity">
+					<input name="quantity" type="number" min="1" step="1" tabindex="1" required
+						   class="form-control" id="quantity" ng-model="kegAdd.keg.quantity">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="col-sm-4 control-label">Kubatura:</label>
 				<div class="col-sm-2">
-					<button type="button" class="btn" bs-select
-							ng-model="newStock.volume" 
-							ng-options="volume as volume|liters for volume in newStock.volumes"
-							placeholder="Objem litrů...">
-						Action <span class="caret"></span>
-					</button>
+					<select class="form-control" bs-select tabindex="2" required
+							ng-model="kegAdd.keg.volume" placeholder="Objem litrů..."
+							ng-options="volume as volume|liters for volume in ::kegAdd.keg.volumes">
+					</select>
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-sm-4 control-label">Pivo:</label>
+				<label for="brewery" class="col-sm-4 control-label">Pivo:</label>
 				<div class="col-sm-8">
-					<div class="btn-group">
-						<button type="button" class="btn" bs-select
-								ng-model="newStock.brewery" ng-change="assignBeers()"
-								ng-options="brewery.id as brewery.name for brewery in breweries"
-								placeholder="Pivovar...">
-							Action <span class="caret"></span>
-						</button>
-						<button type="button" class="btn" bs-select ng-change="formBeerSelected()"
-								ng-model="newStock.beer" ng-disabled="!newStock.brewery"
-								ng-options="beer.id as beer.name for beer in beers"
-								placeholder="Pivo...">
-							Action <span class="caret"></span>
-						</button>
-					</div>
-					<p class="help-block">Přidat
-						<a href="#">nový pivovar</a>
-						nebo
-						<a href="#">nové pivo</a>
+						<select name="brewery" class="form-control" tabindex="3" required bs-select
+								ng-model="kegAdd.keg.brewery" ng-change="kegAdd.eventBrewerySelected()"
+								ng-options="brewery.id as brewery.name for brewery in ::breweries"
+								id="brewery" placeholder="Pivovar...">
+						</select>
+						<select name="beer" class="form-control" tabindex="4" required bs-select
+								ng-model="kegAdd.keg.beer" ng-change="kegAdd.eventBeerSelected()"
+								ng-options="beer.id as beer.name for beer in kegAdd.beers"
+								ng-show="kegAdd.keg.brewery" placeholder="Pivo...">
+						</select>
+					<p class="help-block">
+						Přidat <a href="#">nový pivovar</a> nebo <a href="#">nové pivo</a>
 					</p>
 				</div>
 			</div>
@@ -100,8 +86,8 @@
 				<div class="col-sm-4">
 					<div class="input-group">
 						<div class="input-group-addon">Kč</div>
-						<input type="number" min="0" step=".01" 
-							   class="form-control" id="price" ng-model="newStock.price">
+						<input name="price" type="number" min="0" step=".01" tabindex="5" required
+							   class="form-control" id="price" ng-model="kegAdd.keg.price">
 					</div>
 				</div>
 			</div>
@@ -109,96 +95,135 @@
 		<div id="new_stock_alert_container"></div>
 	</div>
 	<div class="panel-footer">
-		<button type="button" class="btn btn-danger" ng-click="formTruncate()">Vyprázdnit formulář</button>
-		<button type="button" class="btn btn-success pull-right"
-				ng-click="formSave()" ng-disabled="newStock.volume < 1 || !newStock.isValid()"
-				>Zapsat změny</button>
+		<button type="button" class="btn btn-danger" ng-click="kegAdd.init()">Vyprázdnit formulář</button>
+		<button type="button" class="btn btn-success pull-right" ng-click="kegAdd.save()">Zapsat změny</button>
 	</div>
 </div>
 
-<!-- fragments to use as template -->	
-<div cache-template="stockModal">
-	<div class="keg-info" ng-init="keg.getConsumption()">
-		<div class="row">
-			<div class="col-xs-3 text-right"><strong>Stav</strong></div>
-			<div class="col-xs-3" ng-bind-html="keg.getStateLabel()"></div>
-			<div class="col-xs-3 text-right"><strong>Cena za sud</strong></div>
-			<div class="col-xs-3">{{ keg.price | currency:'Kč ':2}}</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-3 text-right"><strong>Naskladněno</strong></div>
-			<div class="col-xs-3">{{ keg.dateAdd | date:'d. M. yyyy'}}</div>
-			<div class="col-xs-3 text-right"><strong>Zbývá objem</strong></div>
-			<div class="col-xs-3">
-				{{ ((keg.volume - (keg.consumption | total:'volume')) / 1000) | number:2}}
-				/ {{ keg.volume | liters}}
-			</div>		
-		</div>
-		<div class="row" ng-if="keg.dateTap">
-			<div class="col-xs-3 text-right"><strong>Naraženo</strong></div>
-			<div class="col-xs-3">{{ keg.dateTap | date:'d. M. yyyy'}}</div>
-			<div class="col-xs-6">
-				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped"
-						 role="progressbar" aria-valuemin="0" aria-valuemax="{{ keg.volume}}"
-						 aria-valuenow="{{ keg.volume - (keg.consumption | total:'volume')}}"
-						 style="width: {{ (1 - (keg.consumption | total:'volume') / keg.volume) | percent}};"
-						 >{{ (1 - (keg.consumption | total:'volume') / keg.volume) | percent}}</div>
+{* kegDetailModal *}
+<div cache-template="kegDetailModal">
+	<div class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="$hide()">&times;</button>
+					<h4 class="modal-title" ng-bind="'Detail sudu # ' + keg.id + ' – ' +	keg.beer.brewery.name + ' ' + keg.beer.name">
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="keg-info" ng-init="keg.getConsumption();">
+						<div class="row">
+							<div class="col-xs-3 text-right"><strong>Stav</strong></div>
+							<div class="col-xs-3" ng-bind-html="keg.getStateLabel()"></div>
+							<div class="col-xs-3 text-right"><strong>Cena za sud</strong></div>
+							<div class="col-xs-3" ng-bind="keg.price | currency:'Kč ':2"></div>
+						</div>
+						<div class="row">
+							<div class="col-xs-3 text-right"><strong>Naskladněno</strong></div>
+							<div class="col-xs-3" ng-bind="keg.dateAdd | date:'d. M. yyyy'"></div>
+							<div class="col-xs-3 text-right"><strong>Zbývá objem</strong></div>
+							<div class="col-xs-3" ng-bind="(0.001 * keg.residuum|number:2) + ' / ' + (keg.volume|liters)">
+							</div>		
+						</div>
+						<div class="row" ng-if="keg.dateTap">
+							<div class="col-xs-3 text-right"><strong>Naraženo</strong></div>
+							<div class="col-xs-3" ng-bind="keg.dateTap | date:'d. M. yyyy'"></div>
+							<div class="col-xs-6">
+								<div class="progress">
+									<div class="progress-bar progress-bar-success progress-bar-striped"
+										 role="progressbar" aria-valuemin="0" aria-valuemax="{{ keg.volume}}"
+										 aria-valuenow="{{ keg.residuum }}"
+										 style="width: {{ keg.residuum / keg.volume | percent}};"
+										 ng-bind="keg.residuum / keg.volume | percent"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row" ng-if="keg.dateEnd">
+							<div class="col-xs-3 text-right"><strong>Dopito</strong></div>
+							<div class="col-xs-3" ng-bind="keg.dateEnd | date:'d. M. yyyy'"></div>
+							<div class="col-xs-3 text-right"><strong>Cena za 1 pivo</strong></div>
+							<div class="col-xs-3" ng-bind="keg.price / keg.residuum * 500|currency:'Kč ':2"></div>
+						</div>
+						<br />
+						<br />
+						{* kegConsumption table with tree nested ng-repeats *}
+						<div class="panel panel-danger" ng-if="keg.consumption.length"
+							 ng-init="editable = isManager && !keg.dateEnd">
+							<div class="panel-heading">
+								Pivní deník
+							</div>
+							<table class="table table-condensed table-striped">
+								<thead>
+									<tr>
+										<th>Konzument</th>
+										<th>Poslední náčep</th>
+										<th>Celkem vypil</th>
+									</tr>
+								</thead>
+								<tbody ng-repeat="(userId, userCons) in ::keg.consumption|groupBy:'user' track by userId">
+									<tr>
+										<td>
+											<label style="font-weight: normal; cursor: pointer;">
+												<input type="checkbox" ng-model="userCons.expand">
+												<span ng-bind="::usersById[userId].name"></span>
+											</label>
+										</td>
+										<td>
+											<em ng-bind="::userCons|max:'dateAdd'|date:'EEEE, d. M. y, HH:mm:ss'"></em>
+										</td>
+										<td>
+											<strong ng-bind="::userCons|total:'volume'|liters:3"></strong>
+										</td>
+									</tr>
+									<tr ng-show="userCons.expand"
+										ng-repeat-start="(date, consum) in ::userCons|groupBy:'dateAdd':'date' track by date">
+										<td><i class="glyphicon glyphicon-chevron-up"></i></td>
+										<td>
+											<label style="font-weight: normal; cursor: pointer">
+												<input type="checkbox" ng-model="consum.expand">
+												<span ng-bind="::date|date:'EEEE, d. M. y'"></span>
+											</label>
+										</td>
+										<td>
+											<em ng-bind="::consum|total:'volume'|liters:3"></em>
+										</td>
+									</tr>
+									<tr ng-repeat-end ng-repeat="cons in ::consum track by cons.id"
+										ng-show="userCons.expand && consum.expand">
+										<td><i class="glyphicon glyphicon-chevron-up"></i></td>
+										<td>
+											<strong ng-bind="$index + 1 + '.'"></strong>&nbsp;&nbsp;
+											<span ng-bind="::cons.dateAdd|date:'HH:mm:ss'"></span>
+										</td>
+										<td>
+											<i class="glyphicon glyphicon-chevron-up"></i>
+											<span ng-bind="::cons.volume|liters:3"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							{*<div class="panel-footer" ng-if="activePane === 1 && editable">
+								<button class="btn btn-danger" ng-click="keg.removeConsumptions()"
+										ng-disabled="(keg.consumption|filter:{ checked: true }).length === 0"
+										>Smazat označené</button>
+								<button class="btn btn-primary pull-right" bs-popover data-auto-close="0"
+										data-placement="left" title="Nový pivní záznam"
+										data-container="body" data-animation="am-fade consumption-popover"
+										data-content-template="stockNewConsumptionPopover"
+										>Přidat pivní záznam</button>
+							</div>*}
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
 				</div>
 			</div>
 		</div>
-		<div class="row" ng-if="keg.dateEnd">
-			<div class="col-xs-3 text-right"><strong>Dopito</strong></div>
-			<div class="col-xs-3">{{ keg.dateEnd | date:'d. M. yyyy'}}</div>
-			<div class="col-xs-3 text-right"><strong>Cena za 1 pivo</strong></div>
-			<div class="col-xs-3">
-				{{ (keg.price / (keg.consumption|total:'volume') * 500)|currency:'Kč ':2 }}
-			</div>
-		</div>
-		<br />
-		<br />
-		<div class="panel panel-danger" ng-if="keg.consumption.length"
-			 ng-init="editable = isManager && !keg.dateEnd">
-			<div class="panel-heading">
-				Pivní deník
-			</div>
-			<table class="consumption_table table table-condensed table-striped" data-toggle="table"  data-height="150">
-				<thead>
-					<tr>
-						<th ng-if="editable" >
-							<input type="checkbox" ng-model="checkAllToggle"
-								   ng-change="checkAll(keg.consumption, checkAllToggle)">
-						</th>
-						<th>Konzument</th>
-						<th>Okamžik čepování</th>
-						<th>Objem</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="cons in keg.consumption">
-						<td ng-if="editable" >
-							<input type="checkbox" ng-model="cons.checked">
-						</td>
-						<td>{{ usersById[cons.user].name }}</td>
-						<td>{{ cons.dateAdd | date:'EEEE, d. M. y, HH:mm:ss'}}</td>
-						<td>{{ cons.volume + ' ml'}}</td>
-					</tr>
-				</tbody>
-			</table>
-			<div class="panel-footer" ng-if="editable">
-				<button class="btn btn-danger" ng-click="keg.removeConsumptions()"
-						ng-disabled="(keg.consumption|filter:{ checked: true }).length === 0"
-						>Smazat označené</button>
-				<button class="btn btn-primary pull-right" bs-popover data-auto-close="0"
-						data-placement="left" title="Nový pivní záznam"
-						data-container="body" data-animation="am-fade consumption-popover"
-						data-content-template="stockNewConsumptionPopover"
-						>Přidat pivní záznam</button>
-			</div>
-		</div>
 	</div>
 </div>
 
+{* stockNewConsumptionPopover inside kegDetailModal *}
 <div cache-template="stockNewConsumptionPopover">
 	<form class="form-inline" ng-init="additional = {}">
 		<div class="form-group">
@@ -222,4 +247,22 @@
 				ng-click="keg.saveConsumption(additional).$promise.then($hide())"
 				>Uložit</button>
 	</form>
+</div>
+
+{* stockNewBreweryModal inside kegAdd form *}
+<div cache-template="stockNewBreweryModal">
+	<div class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="$hide()">&times;</button>
+					<h4 class="modal-title">Přidat nový pivovar</h4>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

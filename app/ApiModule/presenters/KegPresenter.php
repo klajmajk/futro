@@ -23,6 +23,8 @@ class KegPresenter extends BasePresenter
 	 * @var array */
 	public static $states = array('STOCKED', 'TAPPED', 'FINISHED');
 	
+	/** extra store for $this->deepListing
+	 * @var array */
 	private $listing = array('beer' => array('brewery'));
 
 	
@@ -37,21 +39,22 @@ class KegPresenter extends BasePresenter
 	
 	public function validateCreate()
 	{
-		$this->input->field('volume')->addRule(IValidator::IS_IN, 'Unsupported keg volume', self::$volumes);
+		$this->input->field('volume')->addRule(IValidator::IS_IN, 'Unsupported keg volume.', self::$volumes);
 	}
 
 
 	public function validateUpdateTap()
 	{
-		$this->input->field('state')->addRule(IValidator::IS_IN, 'Unsupported keg state', self::$states);
+		$this->input->field('state')->addRule(IValidator::IS_IN, 'Unsupported keg state.', self::$states);
 	}
 	
 	public function actionCreate()
 	{
 		try {
 			$this->inputData['state'] = self::$states[0];
-			if (empty($this->inputData['date_add']))
-				$this->inputData['date_add'] = date('c');
+			$this->inputData['date_add'] = new Nette\Utils\DateTime(
+					empty($this->inputData['date_add']) ?
+							NULL : $this->inputData['date_add']);		
 			$quantity = empty($this->inputData['quantity']) ? 1 : (int) $this->inputData['quantity'];
 			$this->harmonizeInputData();
 			while($quantity--)
@@ -73,8 +76,8 @@ class KegPresenter extends BasePresenter
 	
 	public function actionUpdateTap($id, $relationId)
 	{
-		$tap = $this->db->table('tap')->get((int) $relationId);
-		$keg = $this->db->table('keg')->get((int) $id);
+		$tap = $this->db->table('tap')->get($relationId);
+		$keg = $this->db->table('keg')->get($id);
 
 		$errors = [];
 		
@@ -99,13 +102,13 @@ class KegPresenter extends BasePresenter
 			switch (array_search($this->inputData['state'], self::$states)) {
 				case 1:
 					if ($tap->keg !== NULL) {
-						$errors[] = 'Tap already in use';
-					} else {
-						if ($keg->date_tap === NULL)
-							$data['date_tap'] = empty($this->inputData['date_tap']) ?
-									new Nette\Utils\DateTime() : $this->inputData['date_tap'];
-						$dataTap = array('keg' => $id);
+						$errors[] = 'Tap already in use.';
+						break;
 					}
+					$dataTap['keg'] = $id;
+					if ($keg->date_tap === NULL)
+						$data['date_tap'] = empty($this->inputData['date_tap']) ?
+								new Nette\Utils\DateTime() : $this->inputData['date_tap'];
 					break;
 				case 2:
 					$data['date_end'] = empty($this->inputData['date_end']) ?
@@ -114,7 +117,7 @@ class KegPresenter extends BasePresenter
 				// there is no break; because following actions applies also for previous case
 				case 0:
 					if ($tap->keg != $id)
-						$errors[] = 'This keg is not assigned to this tap';
+						$errors[] = 'This keg is not assigned to this tap.';
 			}
 			
 			if (count($errors) > 0)
@@ -147,7 +150,8 @@ class KegPresenter extends BasePresenter
 			$this->db->table('credit')->insert(array(
 				'user' => $consumer['user'],
 				'date_add' => $datetime,
-				'amount' => $bill * -1
+				'amount' => $bill * -1,
+				'keg' => $keg->id
 			));
 		}
 	}
@@ -166,7 +170,8 @@ class KegPresenter extends BasePresenter
 	
 	public function actionCreateConsumption($id)
 	{
-		
+		$this->inputData['keg'] = $id;
+		parent::actionCreate();
 	}
 
 

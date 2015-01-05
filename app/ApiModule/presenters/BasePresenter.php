@@ -181,8 +181,9 @@ class BasePresenter extends ResourcePresenter
 	public function actionCreate()
 	{
 		try {
-			if (empty($this->inputData['date_add']))
-				$this->inputData['date_add'] = new \Nette\Utils\DateTime();
+			$this->inputData['date_add'] = new Nette\Utils\DateTime(
+					empty($this->inputData['date_add']) ?
+							NULL : $this->inputData['date_add']);
 			$this->harmonizeInputData();
 			$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();

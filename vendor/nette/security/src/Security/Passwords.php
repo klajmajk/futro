@@ -18,7 +18,6 @@ use Nette;
 class Passwords
 {
 	const PASSWORD_MAX_LENGTH = 4096;
-	const PASSWORD_MIN_LENGTH = 4;
 	const BCRYPT_COST = 10;
 
 
@@ -73,17 +72,6 @@ class Passwords
 		$cost = isset($options['cost']) ? (int) $options['cost'] : self::BCRYPT_COST;
 		return !preg_match('#^\$2y\$(?P<cost>\d\d)\$(?P<salt>.{22})#', $hash, $m)
 			|| $m['cost'] < $cost;
-	}
-	
-	public static function validateNew($password)
-	{
-		if(!preg_match('#^[\d\w\\/\*\-\+\,\(\)]*$#', $password))
-				throw new Nette\UnexpectedValueException('Password shall contain only letters, '.
-						'numbers, mathematic operators and special characters: /*-+,()_');
-		
-		if(strlen($password) < self::PASSWORD_MIN_LENGTH)
-			throw new Nette\UnexpectedValueException('Password must be at least '.
-					self::PASSWORD_MIN_LENGTH.' characters long.');		
 	}
 
 }
