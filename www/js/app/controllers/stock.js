@@ -5,8 +5,8 @@ define([
 ], function () {
 	'use strict';
 
-	return function (ctrl) {
-		ctrl.controller('StockController', ['$scope', 'API', '$alert',
+	return function (controllerModule) {
+		controllerModule.controller('StockController', ['$scope', 'API', '$alert',
 			'Keg',
 			function ($scope, API, $alert, Keg) {
 				Keg.prototype.confirmDelete = function () {
@@ -46,8 +46,15 @@ define([
 				};
 				var Brewery = API('brewery');
 
-				$scope.kegs = Keg.query();
-				$scope.breweries = Brewery.query();
+				
+				Keg.query(function (data) {
+					$scope.kegs = data;
+				});
+				
+				Brewery.query(function(data) {
+					$scope.breweries = data;
+				});
+				
 				$scope.kegAdd = {
 					init: function () {
 						this.keg = new Keg();
@@ -97,9 +104,9 @@ define([
 						}
 					},
 					eventBrewerySelected: function () {
-						this.beers = Brewery.query({
-							id: this.keg.brewery,
-							relation: 'beer'
+						Brewery.query({id: this.keg.brewery, relation: 'beer'},
+						function (data) {
+							this.beers = data;
 						});
 					},
 					eventBeerSelected: function () {
@@ -122,6 +129,25 @@ define([
 							});
 					}
 				};
+				$scope.kegAdd.init();
+				
+				$scope.finished = {
+					itemsPerPage: 9,
+					getPage: function(page) {
+						var my = this,
+							limit = this.itemsPerPage + ',' + (~~page - 1) * this.itemsPerPage;
+						Keg.query({state: Keg.prototype.states[2], limit: limit}, function(data) {
+							my.kegs = data;
+							my.count = data.length > 0 ? data[0].metadata.count : 0;
+						});
+					},
+					loss: {
+						good: 0.06,
+						warn: 0.10,
+						critic: 0.13						
+					}
+				};
+				$scope.finished.getPage(1);
 			}]);
 	};
 

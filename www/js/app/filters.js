@@ -4,7 +4,7 @@ define([
 ], function (angular) {
 	'use strict';
 	
-	return angular.module('kumpanium.filters', [])
+	return angular.module('kumpaniumFilters', [])
 
 			.filter('label', function () {
 				return function (input, context) {

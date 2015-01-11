@@ -13,5 +13,8 @@ define(['angular', 'app/app'], function (angular, app) {
 						placement: 'top',
 						animation: 'am-fade-and-scale'
 					});
-				}]);
+				}])
+			.config(function (paginationTemplateProvider) {
+				paginationTemplateProvider.setPath('partials/dirpagination');
+			});
 });

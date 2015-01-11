@@ -44,14 +44,12 @@ body > div.consumption-popover
 	&.in-add
 		animation-name: expand
 
-// angular form validation, TODO: CURRENTLY UNUSED
-form
-	.ng-valid // the model is valid
-	.ng-invalid // the model is invalid
-	.ng-valid-[key] // for each valid key added by $setValidity
-	.ng-invalid-[key] // for each invalid key added by $setValidity
-	.ng-pristine // the control hasn't been interacted with yet
-	.ng-dirty // the control has been interacted with
-	.ng-touched // the control has been blurred
-	.ng-untouched // the control hasn't been blurred
-	.ng-pending // any $asyncValidators are unfulfilled
+form[show-errors] .form-group
+	.help-block
+		display: none
+	&.has-error .help-block
+		display: block
+
+.modal-footer dir-pagination-controls
+	float: left
+	line-height: 34px

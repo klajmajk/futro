@@ -11,6 +11,7 @@ define([
 	'app/services',
 	'app/directives',
 	'app/controllers',
+	'dirPagination'
 ], function (angular) {
 	'use strict';
 	
@@ -20,9 +21,10 @@ define([
 		'mgcrea.ngStrap',
 		'chart.js',
 		'ngAnimate',
-		'kumpanium.controllers',
-		'kumpanium.filters',
-		'kumpanium.services',
-		'kumpanium.directives'
+		'kumpaniumControllers',
+		'kumpaniumFilters',
+		'kumpaniumServices',
+		'kumpaniumDirectives',
+		'angularUtils.directives.dirPagination'
 	]);
 });

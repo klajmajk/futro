@@ -6,7 +6,7 @@ define([
 	'use strict';
 
 	return function (ctrl) {
-		ctrl.controller('NewsConstroller', ['$scope', 'API', '$q', '$rootScope', 'User',
+		ctrl.controller('NewsController', ['$scope', 'API', '$q', '$rootScope', 'User',
 			function ($scope, API, $q, $rootScope, User) {
 				$q.all([API('news').query().$promise, $rootScope.users.$promise]).then(function (data) {
 					var news = data[0];

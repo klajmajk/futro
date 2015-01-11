@@ -16,8 +16,9 @@ use Nette,
  * @package ResourcesModule
  * @author Václav Novotný
  */
-class BasePresenter extends ResourcePresenter
+class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 {
+
 	/** @var Nette\Database\Context */
 	protected $db;
 
@@ -29,10 +30,12 @@ class BasePresenter extends ResourcePresenter
 
 	/** @var array append referenced tables to database when read */
 	protected $deepListing;
-	
+
 	/** @var array append referenced tables data to database output */
 	protected $inputData;
-
+	
+	/** @var array contains metadata that are appended to response */
+	protected $metadata = array();
 
 	public function __construct(Database\Context $database)
 	{
@@ -42,8 +45,8 @@ class BasePresenter extends ResourcePresenter
 		$tableName = $this->getTableByPresenterName();
 		$this->table = $this->db->table($tableName);
 	}
-	
-	
+
+
 	public function startup()
 	{
 		try {
@@ -52,23 +55,23 @@ class BasePresenter extends ResourcePresenter
 				throw BadRequestException::methodNotSupported(
 						'Url must follow convention /presenter/id/relation/relationId.'.
 						' Valid ID is only positive, non zero integer.');
-			
-			$id = $this->isValidId($id);			
+
+			$id = $this->isValidId($id);
 			$input = $this->input->getData();
 			if (isset($input['id']) && $this->isValidId($input['id']) !== $id)
 				throw BadRequestException::unprocessableEntity(
 						array('ID in request body not match to ID in url'));
-			
+
 			if ($this->getAction() === 'create' && $id !== FALSE)
 				$this->changeAction('update');
 
 			parent::startup();
 
 			if ($this->getAction() !== 'read')
-				$this->inputData = $this->inputData ?: $this->getInputData();
+				$this->inputData = $this->inputData ? : $this->getInputData();
 
-			$relation = $this->getParameter('relation');			
-			if ($relation !== NULL) {				
+			$relation = $this->getParameter('relation');
+			if ($relation !== NULL) {
 				$this->table = $this->db->table($relation)
 						->where($this->table->getName(), $id);
 				$this->deepListing = NULL;
@@ -101,28 +104,8 @@ class BasePresenter extends ResourcePresenter
 	public function actionRead($id)
 	{
 		try {
-			if ($id === NULL) {
-				if (is_array($this->queryFilter))
-					$this->filterTable();
-				$this->resource = array();
-				foreach ($this->table as $row) {
-					if ($this->getParameter('outputAssoc')) {
-						$dest = &$this->resource[$row->id];
-					} else {
-						$dest = &$this->resource[];
-					}
-					$dest = $row->toArray();
-					if ($this->deepListing)
-						$this->getDeepData($dest, $row, $this->deepListing);
-				}
-			}  else {
-				$row = $this->table->get($id);
-				if ($row === FALSE)
-					throw BadRequestException::notFound('No record for ID: '.$id);
-				$this->resource = $row->toArray();
-				if ($this->deepListing)
-					$this->getDeepData($this->resource, $row, $this->deepListing);
-			}
+			$this->resource = $id === NULL ? 
+					$this->getCollection() : $this->getItem($id);
 		} catch (BadRequestException $ex) {
 			$this->sendErrorResource($ex);
 		}
@@ -132,25 +115,88 @@ class BasePresenter extends ResourcePresenter
 
 
 	/**
-	 * Filter database output
+	 * Returns single database record as associative array
+	 * @param int $id
+	 * @return array item
+	 * @throws Drahak\Restful\Application\BadRequestException
+	 */
+	protected function getItem($id)
+	{
+		$row = $this->table->get($id);
+		if ($row === FALSE)
+			throw BadRequestException::notFound('No record for ID: '.$id);
+		$item = $row->toArray();
+		if ($this->deepListing)
+			$this->getDeepData($item, $row, $this->deepListing);
+		
+		if (count($this->metadata) > 0)
+			$item['metadata'] = $this->metadata;
+
+		return $item;
+	}
+
+	/**
+	 * Return all matched database records as simple array
+	 * @return array collection
+	 */
+	protected function getCollection()
+	{
+		$this->filterTable();
+		$this->paginate();
+
+		$collection = array();
+		foreach ($this->table as $row) {
+			$item = &$collection[];
+			$item = $row->toArray();
+			if ($this->deepListing)
+				$this->getDeepData($item, $row, $this->deepListing);
+		}
+
+		if (count($this->metadata) > 0 && count($collection) > 0)
+			$collection[0]['metadata'] = $this->metadata;
+
+		return $collection;
+	}
+
+	/**
+	 * Set limit on database and adds total count to metadata
+	 */
+	protected function paginate()
+	{
+		$limit = $this->getParameter('limit');
+		if ($limit !== NULL) {
+			$offset = 0;
+			if (strpos($limit, ','))
+				list($limit, $offset) = explode(',', $limit);
+
+			$this->metadata['count'] = $this->table->count();
+			$this->table->limit($limit, $offset);
+		}
+	}
+
+
+	/**
+	 * Filter database output according to $this->queryFilter
 	 */
 	protected function filterTable()
 	{
-		foreach ($this->queryFilter as $filter => $setting) {
-			$filterParam = $this->getParameter($filter);
-			if ($filterParam === NULL) {
-				if (isset($setting['default']))
-					$this->table->where($filter, $setting['default']);
-			} else if (strcasecmp($filterParam, 'ALL')) {
-				$this->table->where($filter, isset($setting[$filterParam]) ?
-								$setting[$filterParam] : explode(',', $filterParam));
+		if (is_array($this->queryFilter)) {
+			foreach ($this->queryFilter as $filter => $setting) {
+				$filterParam = $this->getParameter($filter);
+				if ($filterParam === NULL) {
+					if (isset($setting['default']))
+						$this->table->where($filter, $setting['default']);
+				} else if (strcasecmp($filterParam, 'ALL') !== 0) {
+					$this->table->where($filter, isset($setting[$filterParam]) ?
+									$setting[$filterParam] : explode(',', $filterParam));
+				}
 			}
 		}
 	}
 
 
 	/**
-	 * Appends referencing database table data to result set
+	 * Appends referencing database table data to result set according to $this->deepListing
 	 * @param array $dest reference to data destination
 	 * @param \Nette\Database\Table\ActiveRow $row
 	 * @param array $map
@@ -203,7 +249,7 @@ class BasePresenter extends ResourcePresenter
 		try {
 			unset($this->inputData['date_add'], $this->inputData['id']);
 			$row = $this->table->get($id);
-			$this->harmonizeInputData($row);				
+			$this->harmonizeInputData($row);
 			$row->update($this->inputData);
 			$this->resource = $row->toArray();
 		} catch (\Exception $ex) {
@@ -242,14 +288,6 @@ class BasePresenter extends ResourcePresenter
 		return $converter->convert($data);
 	}
 
-
-	protected function normalizeDate(array &$input)
-	{
-		foreach ($input as &$value)
-			if (strtotime($value))
-				$value = new Nette\Utils\DateTime($value);
-	}
-
 	/**
 	 * Prepare $this->inputData for inserting into DB, cleans data
 	 * according to existing columns in table and flatten nested arrays
@@ -257,11 +295,11 @@ class BasePresenter extends ResourcePresenter
 	 */
 	protected function harmonizeInputData($row = NULL)
 	{
-		if (!$row) {			
+		if (!$row) {
 			$res = $this->table->limit(1)->fetchAll();
 			$row = reset($res);
 		}
-		
+
 		foreach ($this->inputData as $key => &$value)
 			if ($row && !$row->offsetExists($key)) {
 				unset($this->inputData[$key]);
@@ -273,7 +311,8 @@ class BasePresenter extends ResourcePresenter
 				}
 			}
 	}
-	
+
+
 	/**
 	 * Returns valided and typecasted ID or FALSE if not valid
 	 * @param mixed $id
@@ -286,7 +325,7 @@ class BasePresenter extends ResourcePresenter
 				'min_range' => 1
 			)
 		);
-		
+
 		return filter_var($id, FILTER_VALIDATE_INT, $options);
 	}
 

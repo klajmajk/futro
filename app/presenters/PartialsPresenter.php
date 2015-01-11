@@ -2,8 +2,7 @@
 
 namespace App\Presenters;
 
-use Nette,
-	App\Model;
+use Tracy;
 
 /**
  * Description of PagePresenter
@@ -16,6 +15,7 @@ class PartialsPresenter extends BasePresenter
 	{
 		parent::startup();
 		
+		Tracy\Debugger::$productionMode = true;
 		$this->layout = FALSE;
 	}
 

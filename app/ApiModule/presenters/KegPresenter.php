@@ -48,6 +48,16 @@ class KegPresenter extends BasePresenter
 		$this->input->field('state')->addRule(IValidator::IS_IN, 'Unsupported keg state.', self::$states);
 	}
 	
+	public function actionRead($id)
+	{
+		if (strcasecmp($this->getParameter('state'), self::$states[2]) === 0)
+			$this->table
+				->select('keg.*, SUM(:consumption.volume) AS total_consumption')
+				->group('keg.id');
+		
+		parent::actionRead($id);
+	}
+	
 	public function actionCreate()
 	{
 		try {
@@ -103,16 +113,16 @@ class KegPresenter extends BasePresenter
 				case 1:
 					if ($tap->keg !== NULL) {
 						$errors[] = 'Tap already in use.';
-						break;
+					} else {
+						$dataTap['keg'] = $id;
+						if ($keg->date_tap === NULL)
+							$data['date_tap'] = new Nette\Utils\DateTime(
+									empty($this->inputData['date_tap']) ? NULL : $this->inputData['date_tap']);
 					}
-					$dataTap['keg'] = $id;
-					if ($keg->date_tap === NULL)
-						$data['date_tap'] = empty($this->inputData['date_tap']) ?
-								new Nette\Utils\DateTime() : $this->inputData['date_tap'];
 					break;
 				case 2:
-					$data['date_end'] = empty($this->inputData['date_end']) ?
-							new Nette\Utils\DateTime() : $this->inputData['date_end'];
+					$data['date_end'] = new Nette\Utils\DateTime(empty($this->inputData['date_end']) ?
+							NULL : $this->inputData['date_end']);
 					$this->finishAndAccount($keg, $data['date_end']);
 				// there is no break; because following actions applies also for previous case
 				case 0:
@@ -159,11 +169,10 @@ class KegPresenter extends BasePresenter
 
 	/**
 	 * relation: keg/<id>/consumption
-	 * outputs consumed ml from keg 
-	 * @param int $id
+	 * outputs consumed ml from keg
 	 * @param int $relationId
 	 */	
-	public function actionReadConsumption($id, $relationId)
+	public function actionReadConsumption($relationId)
 	{		
 		parent::actionRead($relationId);
 	}

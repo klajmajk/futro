@@ -9,7 +9,7 @@ define(['./app'], function (app) {
 							when('/novinky', {
 								title: 'Novinky',
 								templateUrl: path + '/news',
-								controller: 'NewsConstroller'
+								controller: 'NewsController'
 							}).
 							when('/konzumenti', {
 								title: 'Konzumenti',

@@ -4,7 +4,7 @@ define([
 ], function (angular) {
 	'use strict';
 	
-	return angular.module('kumpanium.directives', ['kumpanium.services'])
+	return angular.module('kumpaniumDirectives', ['kumpaniumServices'])
 	
 			.directive('setFocusIf', function ($timeout) {
 				return {

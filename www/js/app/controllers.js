@@ -12,14 +12,14 @@ define([
 		) {
 	'use strict';
 
-	var ctrl = angular.module('kumpanium.controllers', []);
+	var controllerModule = angular.module('kumpaniumControllers', []);
 
-	news(ctrl);
-	stats(ctrl);
-	stock(ctrl);
-	user(ctrl);
+	news(controllerModule);
+	stats(controllerModule);
+	stock(controllerModule);
+	user(controllerModule);
 
-	ctrl.run(function ($rootScope, $window, User) {
+	controllerModule.run(function ($rootScope, $window, User) {
 		$rootScope.isManager = $window.isManager;
 		$rootScope.usersById = {};
 		$rootScope.users = User.query(function (users) {
@@ -34,5 +34,5 @@ define([
 		};
 	});
 
-	return ctrl;
+	return controllerModule;
 });

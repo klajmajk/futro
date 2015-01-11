@@ -1,63 +1,94 @@
 <div class="panel panel-default">
-	<div class="panel-body">
-		<table class="table table-striped table-hover">
-			<thead>
-				<tr>
-					<th>Jméno</th>
-					<th>Status</th>
-					<th>Posledně čepoval</th>
-					<th>Bilance</th>
-					<th>Kontakt</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="user in users">
-					<td>
-						<span class="anchor-like" bs-modal data-template="userEditModal">
-							<i class="glyphicon glyphicon-pencil"></i>
-						</span>
-						{{ user.name }}
-					</td>
-					<td ng-bind-html="user.getRoleLabel()"></td>
-					<td>
-						<span class="anchor-like" bs-modal data-template="userConsumptionModal">
-							<i class=" glyphicon glyphicon-tint"></i>
-						</span>
-						{{ user.lastTap|date:'EEEE, d. M. y' }}
-					</td>
-					<td>
-						<span class="anchor-like" bs-modal data-template="userCreditModal">
-							<i class="glyphicon glyphicon-plus"></i>
-						</span>
-						<span ng-class="{ 'text-danger': user.balance < 0 }"
-							  ng-bind="user.balance|currency:'Kč ':2"></span>
-					</td>
-					<td>
-						<a ng-href="mailto:{{ user.email }}">
-							<i class="glyphicon glyphicon-envelope"
-							   bs-tooltip="user.email"></i>
-						</a>
-						<a ng-href="tel:{{ user.phone }}">
-							<i class="glyphicon glyphicon-earphone"
-							   bs-tooltip="user.phone"></i>
-						</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th>Jméno</th>
+				<th>Status</th>
+				<th>Posledně čepoval</th>
+				<th>Bilance</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="user in users track by user.id">
+				<td>
+					<span class="anchor-like" bs-modal data-template="userEditModal">
+						<i class="glyphicon glyphicon-pencil"></i>
+					</span>
+					<span ng-bind="user.name"></span>
+				</td>
+				<td ng-bind-html="user.getRoleLabel()"></td>
+				<td>
+					<span class="anchor-like" bs-modal data-template="userConsumptionModal">
+						<i class=" glyphicon glyphicon-tint"></i>
+					</span>
+					<span ng-bind="user.lastTap|date:'EEEE, d. M. y'"></span>
+				</td>
+				<td>
+					<span class="anchor-like" bs-modal data-template="userCreditModal">
+						<i class="glyphicon glyphicon-search"></i>
+					</span>
+					<span ng-class="{
+						'text-danger': user.balance < 0,
+						'text-warning': user.balance < 500
+					}"
+						  ng-bind="user.balance|currency:'Kč ':2"></span>
+				</td>
+				<td>
+					<a ng-href="mailto:{{ user.email}}">
+						<i class="glyphicon glyphicon-envelope"
+						   bs-tooltip="user.email"></i>
+					</a>
+					<a ng-href="tel:{{ user.phone}}">
+						<i class="glyphicon glyphicon-earphone"
+						   bs-tooltip="user.phone"></i>
+					</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 
 <!-- popovers and modals to use as template -->
 <div cache-template="userConsumptionModal">
 	<div class="modal" tabindex="-1" role="dialog">
 		<div class="modal-dialog">
-			<div class="modal-content">
+			<div class="modal-content" ng-init="user.getConsumption()">
 				<div class="modal-header">
 					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Spotřeba {{ user.name }}</h4>
-				</div>
-				<div class="modal-body"></div>
+					<h4 class="modal-title">Konzumace &ndash; {{ user.name}}</h4>
+					<p>
+						Vypito za tento rok / celkem:
+						<span ng-bind="0.001 * (user.consumption.length > 0 ? user.consumption[0].metadata.totalThisYear : 0)|number:2"></span>
+						/
+						<span ng-bind="(user.consumption.length > 0 ? user.consumption[0].metadata.totalOverall : 0)|liters:2"></span>
+					</p>
+				</div>				
+				<table class="table table-condensed table-striped">
+					<thead>
+						<tr>
+							<th>Pivko</th>
+							<th>Okamžik náčepu</th>
+							<th>Objem</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr dir-paginate="cons in user.consumption|orderBy:'-id'
+							|itemsPerPage:user.consumptionPerPage track by cons.id"
+							total-items="user.consumption.length > 0 ? user.consumption[0].metadata.count : 0">
+							<td ng-bind="cons.keg.beer.brewery.name + ' ' + cons.keg.beer.name"></td>
+							<td ng-bind="cons.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
+							<td ng-bind="cons.volume|liters:3"></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="3" class="text-center">
+								<dir-pagination-controls on-page-change="user.getConsumption(newPageNumber)"></dir-pagination-controls>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
 				</div>
@@ -67,35 +98,58 @@
 </div>
 
 <div cache-template="userCreditModal">
-	<table class="table">
-		<tr>
-			<th>Celkem zaplaceno</th>
-			<td></td>
-		</tr>
-		<tr>
-			<th>Celkem zaplaceno</th>
-			<td></td>
-		</tr>
-		<tr>
-			<th>Celkem zaplaceno</th>
-			<td></td>
-		</tr>
-	</table>
+	<div class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content" ng-init="user.getCredit()">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="$hide()">&times;</button>
+					<h4 class="modal-title">Pohyb na účtu &ndash; {{ user.name }}</h4>
+					<p>
+						Celkem vloženo / odečteno / rozdíl:
+						<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
+						/
+						<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
+						/
+						<strong><span ng-bind="user.balance|number:2"></span> Kč</
+					</p>
+				</div>
 
-	<table class="table table-condensed">
-		<thead>
-			<tr>
-				<th>Datum</th>
-				<th>Částka</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="record in User.getCreditHistory(user.id) as history">
-				<td></td>
-				<td></td>
-			</tr>
-		</tbody>
-	</table>
+				<table class="table table-condensed table-striped">
+					<thead>
+						<tr>
+							<th>Částka</th>
+							<th>Čas operace</th>
+							<th>Poznámka</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr dir-paginate="credit in user.credit|orderBy:'-id'
+							|itemsPerPage:user.creditPerPage track by credit.id"
+							total-items="user.credit.length > 0 ? user.credit[0].metadata.count : 0">
+							<td ng-bind="credit.amount|currency:'Kč ':2" ng-class="{
+								'text-danger': credit.amount <= 0,
+								'text-success': credit.amount > 0
+							}"></td>
+							<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
+							<td ng-bind="(credit.keg ? 'Dopití sudu #' + credit.keg.id + ': ' +
+							credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + '. ' : '') +
+							(credit.note || '')"></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="3" class="text-center">
+								<dir-pagination-controls on-page-change="user.getCredit(newPageNumber)"></dir-pagination-controls>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div cache-template="userEditModal">
@@ -104,7 +158,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Upravit uživatele #{{ user.id }}: {{ user.name }}</h4>
+					<h4 class="modal-title">Upravit uživatele #{{ user.id}}: {{ user.name}}</h4>
 					<span ng-bind-html="user.getRoleLabel()"></span>
 				</div>
 				<div class="modal-body">

@@ -21,7 +21,8 @@ require.config({
 		angularSanitize: ['angular'],
 		angularStrap: ['angular'],
 		angularStrapTpl: ['angularStrap'],
-		angularChart: ['angular','chart/chart.min']
+		angularChart: ['angular','chart/chart.min'],
+		dirPagination: ['angular']
 	},
 	priority: [
 		'angular'
