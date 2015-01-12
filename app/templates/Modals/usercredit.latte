@@ -1,0 +1,47 @@
+{block title}
+Pohyb na účtu &ndash; {{ ::user.name}}
+{/block}
+
+{block header}
+{include parent}
+<p ng-init="user.getCredit()">
+	Celkem vloženo / odečteno / rozdíl:
+	<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
+	/
+	<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
+	/
+	<strong><span ng-bind="user.balance|number:2"></span> Kč</strong>
+</p>
+{/block}
+
+{block body}
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th>Částka</th>
+			<th>Čas operace</th>
+			<th>Poznámka</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr dir-paginate="credit in user.credit|orderBy:'-id'
+			|itemsPerPage:user.creditPerPage track by credit.id"
+			total-items="user.credit.length > 0 ? user.credit[0].metadata.count : 0">
+			<td class="text-right" ng-bind="(credit.amount|number:2) + ' Kč'" ng-class="{
+								'text-danger': credit.amount <= 0,
+								'text-success': credit.amount > 0
+							}"></td>
+			<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
+			<td ng-bind="(credit.keg ? 'Dopití sudu #' + credit.keg.id + ': ' +
+							credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + '. ' : '') +
+							(credit.note || '')"></td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="3" class="text-center">
+				<dir-pagination-controls on-page-change="user.getCredit(newPageNumber)"></dir-pagination-controls>
+			</td>
+		</tr>
+	</tfoot>
+</table>

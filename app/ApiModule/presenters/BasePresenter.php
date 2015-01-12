@@ -42,8 +42,6 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 		parent::__construct();
 
 		$this->db = $database;
-		$tableName = $this->getTableByPresenterName();
-		$this->table = $this->db->table($tableName);
 	}
 
 
@@ -70,30 +68,27 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 			if ($this->getAction() !== 'read')
 				$this->inputData = $this->inputData ? : $this->getInputData();
 
-			$relation = $this->getParameter('relation');
-			if ($relation !== NULL) {
-				$this->table = $this->db->table($relation)
-						->where($this->table->getName(), $id);
-				$this->deepListing = NULL;
-				$this->queryFilter = NULL;
+			if (($relation = $this->getParameter('relation')) !== NULL) {
+				$this->table = $this->db->table($relation)->where($this->getTableName(), $id);
+				$this->deepListing = $this->queryFilter = NULL;
+			} else {
+				$this->table = $this->db->table($this->getTableName());
 			}
 		} catch (BadRequestException $ex) {
 			$this->sendErrorResource($ex);
 		}
 	}
-
-
+	
 	/**
-	 * namespace\someTablePresenter => some_table
-	 * @return string table_name
+	 * Returns table name by presenter i.e.: BaseTestPresenter => base_test
+	 * @return string
 	 */
-	private function getTableByPresenterName()
-	{
-		$className = get_class($this);
-		$offset = strrpos($className, "\\") + 1;
-		$tableName = substr($className, $offset, -9);
-
-		return Restful\Utils\Strings::toSnakeCase($tableName);
+	public function getTableName()
+	{		
+		$name = parent::getName();
+		if (($pos = strpos($name, ':')))
+				$name = substr($name, $pos + 1);
+		return Restful\Utils\Strings::toSnakeCase($name);
 	}
 
 
@@ -320,11 +315,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	 */
 	protected final function isValidId($id)
 	{
-		$options = array(
-			'options' => array(
-				'min_range' => 1
-			)
-		);
+		$options = array('options' => array('min_range' => 1));
 
 		return filter_var($id, FILTER_VALIDATE_INT, $options);
 	}

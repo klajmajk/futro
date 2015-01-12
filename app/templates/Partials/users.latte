@@ -12,20 +12,20 @@
 		<tbody>
 			<tr ng-repeat="user in users track by user.id">
 				<td>
-					<span class="anchor-like" bs-modal data-template="userEditModal">
+					<span class="anchor-like" bs-modal data-template="modals/useredit">
 						<i class="glyphicon glyphicon-pencil"></i>
 					</span>
 					<span ng-bind="user.name"></span>
 				</td>
 				<td ng-bind-html="user.getRoleLabel()"></td>
 				<td>
-					<span class="anchor-like" bs-modal data-template="userConsumptionModal">
+					<span class="anchor-like" bs-modal data-template="modals/userconsumption">
 						<i class=" glyphicon glyphicon-tint"></i>
 					</span>
 					<span ng-bind="user.lastTap|date:'EEEE, d. M. y'"></span>
 				</td>
 				<td>
-					<span class="anchor-like" bs-modal data-template="userCreditModal">
+					<span class="anchor-like" bs-modal data-template="modals/usercredit">
 						<i class="glyphicon glyphicon-search"></i>
 					</span>
 					<span ng-class="{
@@ -49,226 +49,4 @@
 			</tr>
 		</tbody>
 	</table>
-</div>
-
-<!-- popovers and modals to use as template -->
-<div cache-template="userConsumptionModal">
-	<div class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content" ng-init="user.getConsumption()">
-				<div class="modal-header">
-					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Konzumace &ndash; {{ user.name}}</h4>
-					<p>
-						Vypito za tento rok / celkem:
-						<span ng-bind="0.001 * (user.consumption.length > 0 ? user.consumption[0].metadata.totalThisYear : 0)|number:2"></span>
-						/
-						<span ng-bind="(user.consumption.length > 0 ? user.consumption[0].metadata.totalOverall : 0)|liters:2"></span>
-					</p>
-				</div>				
-				<table class="table table-condensed table-striped">
-					<thead>
-						<tr>
-							<th>Pivko</th>
-							<th>Okamžik náčepu</th>
-							<th>Objem</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr dir-paginate="cons in user.consumption|orderBy:'-id'
-							|itemsPerPage:user.consumptionPerPage track by cons.id"
-							total-items="user.consumption.length > 0 ? user.consumption[0].metadata.count : 0">
-							<td ng-bind="cons.keg.beer.brewery.name + ' ' + cons.keg.beer.name"></td>
-							<td ng-bind="cons.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
-							<td ng-bind="cons.volume|liters:3"></td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="3" class="text-center">
-								<dir-pagination-controls on-page-change="user.getConsumption(newPageNumber)"></dir-pagination-controls>
-							</td>
-						</tr>
-					</tfoot>
-				</table>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div cache-template="userCreditModal">
-	<div class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content" ng-init="user.getCredit()">
-				<div class="modal-header">
-					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Pohyb na účtu &ndash; {{ user.name }}</h4>
-					<p>
-						Celkem vloženo / odečteno / rozdíl:
-						<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
-						/
-						<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
-						/
-						<strong><span ng-bind="user.balance|number:2"></span> Kč</
-					</p>
-				</div>
-
-				<table class="table table-condensed table-striped">
-					<thead>
-						<tr>
-							<th>Částka</th>
-							<th>Čas operace</th>
-							<th>Poznámka</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr dir-paginate="credit in user.credit|orderBy:'-id'
-							|itemsPerPage:user.creditPerPage track by credit.id"
-							total-items="user.credit.length > 0 ? user.credit[0].metadata.count : 0">
-							<td ng-bind="credit.amount|currency:'Kč ':2" ng-class="{
-								'text-danger': credit.amount <= 0,
-								'text-success': credit.amount > 0
-							}"></td>
-							<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
-							<td ng-bind="(credit.keg ? 'Dopití sudu #' + credit.keg.id + ': ' +
-							credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + '. ' : '') +
-							(credit.note || '')"></td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="3" class="text-center">
-								<dir-pagination-controls on-page-change="user.getCredit(newPageNumber)"></dir-pagination-controls>
-							</td>
-						</tr>
-					</tfoot>
-				</table>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div cache-template="userEditModal">
-	<div class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Upravit uživatele #{{ user.id}}: {{ user.name}}</h4>
-					<span ng-bind-html="user.getRoleLabel()"></span>
-				</div>
-				<div class="modal-body">
-					<form class="form-horizontal" name="userEdit.form" novalidate ng-init="userEdit.init(user)">
-						<div class="form-group">
-							<label for="userName" class="col-sm-2 control-label">Jméno</label>
-							<div class="col-sm-10">
-								<div class="input-group">
-									<div class="input-group-addon">
-										<label>
-											<input type="checkbox" ng-model="userEdit.edit.name">
-											Upravit
-										</label>
-									</div>
-									<input type="text" class="form-control"
-										   ng-min-length="3" required
-										   ng-readonly="!userEdit.edit.name"
-										   ng-model="userEdit.model.name"
-										   id="userName">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="userEmail" class="col-sm-2 control-label">Email</label>
-							<div class="col-sm-10">
-								<div class="input-group">
-									<div class="input-group-addon">
-										<label>
-											<input type="checkbox" ng-model="userEdit.edit.email">
-											Upravit
-										</label>
-									</div>
-									<input type="email" class="form-control"
-										   ng-readonly="!userEdit.edit.email"
-										   ng-model="userEdit.model.email"
-										   id="userName">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="userPhone" class="col-sm-2 control-label">Telefon</label>
-							<div class="col-sm-10">
-								<div class="input-group">
-									<div class="input-group-addon" n:syntax="off">
-										<label>
-											<input type="checkbox" ng-model="userEdit.edit.phone">
-											Upravit
-										</label>
-									</div>
-									<input type="text" data-valid-phone name="phone" class="form-control"
-										   ng-readonly="!userEdit.edit.phone"
-										   ng-model="userEdit.model.phone"
-										   id="userName">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="userPhone" class="col-sm-2 control-label">Heslo</label>
-							<div class="col-sm-10">
-								<button type="button" class="btn btn-default" bs-popover
-										data-template="userEditPasswordPopover"
-										data-placement="top">
-									Změnit heslo ...
-								</button>
-							</div>
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" ng-click="$hide()">Zrušit</button>
-					<button type="button" class="btn btn-primary" ng-click="userEdit.save().then($hide())">Uložit</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div cache-template="userEditPasswordPopover">
-	<div class="popover">
-		<div class="arrow"></div>
-		<h3 class="popover-title">Změna hesla</h3>
-		<div class="popover-content">
-			<form class="form-horizontal">
-				<div class="form-group">
-					<label for="passwordOld" class="col-sm-5 control-label">Aktuální heslo</label>
-					<div class="col-sm-7">
-						<input type="password" class="form-control"
-							   ng-model="userEdit.password.old"
-							   id="passwordOld">
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="passwordNew1" class="col-sm-5 control-label">Nové heslo poprvé</label>
-					<div class="col-sm-7">
-						<input type="password" class="form-control"
-							   ng-model="userEdit.password.new1"
-							   id="passwordNew1">
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="passwordNew2" class="col-sm-5 control-label">Nové heslo podruhé</label>
-					<div class="col-sm-7">
-						<input type="password" class="form-control"
-							   ng-model="userEdit.password.new2"
-							   id="passwordNew2">
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
 </div>

@@ -22,7 +22,7 @@
 						<td ng-bind="::keg.price|currency:'Kč ':2"></td>
 						<td ng-bind-html="keg.getStateLabel()"></td>
 						<td>
-							<span class="anchor-like" bs-modal data-template="kegDetailModal">
+							<span class="anchor-like" bs-modal data-template="modals/kegdetail">
 								<i class="glyphicon glyphicon-search"></i>
 							</span>
 						</td>
@@ -57,20 +57,20 @@
 				<tbody>
 					<tr dir-paginate="keg in finished.kegs|orderBy:'-dateEnd'|itemsPerPage:finished.itemsPerPage"
 						total-items="finished.count">
-						<td ng-bind="keg.id"></td>
-						<td ng-bind="(keg.beer.brewery.name + ' ' + keg.beer.name)"></td>
-						<td ng-bind="keg.volume|liters"></td>
-						<td ng-bind="keg.dateTap|date:'d. M. yyyy'"></td>
-						<td ng-bind="keg.dateEnd|date:'d. M. yyyy'"></td>
-						<td ng-init="loss = 1 - keg.totalConsumption / keg.volume"
-							ng-bind="loss|percent"
+						<td ng-bind="::keg.id"></td>
+						<td ng-bind="::(keg.beer.brewery.name + ' ' + keg.beer.name)"></td>
+						<td ng-bind="::keg.volume|liters"></td>
+						<td ng-bind="::keg.dateTap|date:'d. M. yyyy'"></td>
+						<td ng-bind="::keg.dateEnd|date:'d. M. yyyy'"></td>
+						<td ng-init="::loss = 1 - keg.totalConsumption / keg.volume"
+							ng-bind="::loss|percent"
 							ng-class="{
 								'text-success': loss < finished.loss.good,
 								'text-warning': loss > finished.loss.warn,
 								'text-danger': loss > finished.loss.critic
 									}"></td>
 						<td>
-							<span class="anchor-like" bs-modal data-template="kegDetailModal">
+							<span class="anchor-like" bs-modal data-template="modals/kegdetail">
 								<i class="glyphicon glyphicon-search"></i>
 							</span>
 						</td>
@@ -147,8 +147,8 @@
 						</div>
 					</div>
 					<p class="col-sm-8 col-sm-offset-4">
-						Přidat <span class="anchor-like">nový pivovar</span>
-						nebo <span class="anchor-like">nové pivo.</span>
+						Přidat <span class="anchor-like" bs-modal data-template="modals/brewerynew">nový pivovar</span>
+						nebo <span class="anchor-like" bs-modal data-template="modals/beernew">nové pivo.</span>
 					</p>
 				</form>
 				<div id="new_stock_alert_container"></div>
@@ -156,163 +156,6 @@
 			<div class="panel-footer">
 				<button type="button" class="btn btn-danger" ng-click="kegAdd.init()">Vyprázdnit formulář</button>
 				<button type="button" class="btn btn-success pull-right" ng-click="kegAdd.save()">Zapsat změny</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-{* kegDetailModal *}
-<div cache-template="kegDetailModal">
-	<div class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title" ng-bind="'Detail sudu # ' + keg.id + ' – ' +	keg.beer.brewery.name + ' ' + keg.beer.name">
-					</h4>
-				</div>
-				<div class="modal-body">
-					<div class="keg-info" ng-init="keg.getConsumption();">
-						<div class="row">
-							<div class="col-xs-3 text-right"><strong>Stav</strong></div>
-							<div class="col-xs-3" ng-bind-html="keg.getStateLabel()"></div>
-							<div class="col-xs-3 text-right"><strong>Cena za sud</strong></div>
-							<div class="col-xs-3" ng-bind="keg.price | currency:'Kč ':2"></div>
-						</div>
-						<div class="row">
-							<div class="col-xs-3 text-right"><strong>Naskladněno</strong></div>
-							<div class="col-xs-3" ng-bind="keg.dateAdd | date:'d. M. yyyy'"></div>
-							<div class="col-xs-3 text-right"><strong>Zbývá objem</strong></div>
-							<div class="col-xs-3" ng-bind="(0.001 * keg.rest|number:2) + ' / ' + (keg.volume|liters)">
-							</div>		
-						</div>
-						<div class="row" ng-if="keg.dateTap">
-							<div class="col-xs-3 text-right"><strong>Naraženo</strong></div>
-							<div class="col-xs-3" ng-bind="keg.dateTap | date:'d. M. yyyy'"></div>
-							<div class="col-xs-6">
-								<div class="progress">
-									<div class="progress-bar progress-bar-success progress-bar-striped"
-										 role="progressbar" aria-valuemin="0" aria-valuemax="{{ keg.volume}}"
-										 aria-valuenow="{{ keg.rest}}"
-										 style="width: {{ keg.rest / keg.volume | percent}};"
-										 ng-bind="keg.rest / keg.volume | percent"></div>
-								</div>
-							</div>
-						</div>
-						<div class="row" ng-if="keg.dateEnd">
-							<div class="col-xs-3 text-right"><strong>Dopito</strong></div>
-							<div class="col-xs-3" ng-bind="keg.dateEnd | date:'d. M. yyyy'"></div>
-							<div class="col-xs-3 text-right"><strong>Cena za 1 pivo</strong></div>
-							<div class="col-xs-3" ng-bind="keg.price / (((keg.volume - keg.rest) / 500) || 1)|currency:'Kč ':2"></div>
-						</div>
-						<br />
-						<br />
-						{* kegConsumption table with tree nested ng-repeats *}
-						<div class="panel panel-danger" ng-if="keg.consumption.length"
-							 ng-init="editable = isManager && !keg.dateEnd">
-							<div class="panel-heading">
-								Pivní deník
-							</div>
-							<table class="table table-condensed table-striped">
-								<thead>
-									<tr>
-										<th>Konzument</th>
-										<th>Poslední náčep</th>
-										<th>Celkem vypil</th>
-									</tr>
-								</thead>
-								<tbody ng-repeat="(userId, userCons) in ::keg.consumption|groupBy:'user' track by userId">
-									<tr>
-										<td>
-											<label style="font-weight: normal; cursor: pointer;">
-												<input type="checkbox" ng-model="userCons.expand">
-												<span ng-bind="::usersById[userId].name"></span>
-											</label>
-										</td>
-										<td>
-											<em ng-bind="::userCons|max:'dateAdd'|date:'EEEE, d. M. y, HH:mm:ss'"></em>
-										</td>
-										<td>
-											<strong ng-bind="::userCons|total:'volume'|liters:3"></strong>
-										</td>
-									</tr>
-									<tr ng-show="userCons.expand"
-										ng-repeat-start="(date, consum) in ::userCons|groupBy:'dateAdd':'date' track by date">
-										<td><i class="glyphicon glyphicon-chevron-up"></i></td>
-										<td>
-											<label style="font-weight: normal; cursor: pointer">
-												<input type="checkbox" ng-model="consum.expand">
-												<span ng-bind="::date|date:'EEEE, d. M. y'"></span>
-											</label>
-										</td>
-										<td>
-											<em ng-bind="::consum|total:'volume'|liters:3"></em>
-										</td>
-									</tr>
-									<tr ng-repeat-end ng-repeat="cons in ::consum track by cons.id"
-										ng-show="userCons.expand && consum.expand">
-										<td><i class="glyphicon glyphicon-chevron-up"></i></td>
-										<td>
-											<strong ng-bind="$index + 1 + '.'"></strong>&nbsp;&nbsp;
-											<span ng-bind="::cons.dateAdd|date:'HH:mm:ss'"></span>
-										</td>
-										<td>
-											<i class="glyphicon glyphicon-chevron-up"></i>
-											<span ng-bind="::cons.volume|liters:3"></span>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" ng-click="$hide()">Zavřít</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-{* stockNewConsumptionPopover inside kegDetailModal *}
-<div cache-template="stockNewConsumptionPopover">
-	<form class="form-inline" ng-init="additional = {}">
-		<div class="form-group">
-			<button type="button" class="btn btn-default" ng-model="additional.user"
-					ng-options="user.id as user.name for user in users" bs-select
-					placeholder="Osoba...">
-				Action <span class="caret"></span>
-			</button>
-		</div>
-		<div class="form-group">
-			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Spotřeba piv"
-					   ng-model="additional.volume">
-				<div class="input-group-addon">
-					{{ additional.volume | beerTranslate | calculate | number:0}} ml
-				</div>
-			</div>
-		</div>
-		<button class="btn btn-success"
-				ng-disabled="!(additional.user > 0 && additional.volume)"
-				ng-click="keg.saveConsumption(additional).$promise.then($hide())"
-				>Uložit</button>
-	</form>
-</div>
-
-{* stockNewBreweryModal inside kegAdd form *}
-<div cache-template="stockNewBreweryModal">
-	<div class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" ng-click="$hide()">&times;</button>
-					<h4 class="modal-title">Přidat nový pivovar</h4>
-				</div>
-				<div class="modal-body"></div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
-				</div>
 			</div>
 		</div>
 	</div>

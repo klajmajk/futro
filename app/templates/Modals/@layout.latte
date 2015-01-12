@@ -1,0 +1,16 @@
+<div class="modal" tabindex="-1" role="dialog">
+{ifset #snippets}{include snippets}{/ifset}
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        {ifset #title}<h4 class="modal-title" >{include title}</h4>{/ifset}
+		{block header}{/block}
+      </div>
+      <div class="modal-body" n:block="body">{block content}{/block}</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="$hide()" n:block="footer">Zavřít</button>
+      </div>
+    </div>
+  </div>
+</div>

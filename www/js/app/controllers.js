@@ -19,20 +19,16 @@ define([
 	stock(controllerModule);
 	user(controllerModule);
 
-	controllerModule.run(function ($rootScope, $window, User) {
-		$rootScope.isManager = $window.isManager;
-		$rootScope.usersById = {};
-		$rootScope.users = User.query(function (users) {
-			var i = users.length;
-			while (i--)
-				$rootScope.usersById[users[i].id] = users[i];
-		});
-		$rootScope.checkAll = function (objects, action) {
-			var i = objects.length;
-			while (i--)
-				objects[i].checked = !!action;
-		};
-	});
+	controllerModule.run(['$rootScope', '$window', 'User',
+		function ($rootScope, $window, User) {
+			$rootScope.isManager = $window.isManager;
+			$rootScope.usersById = {};
+			$rootScope.users = User.query(function (users) {
+				var i = users.length;
+				while (i--)
+					$rootScope.usersById[users[i].id] = users[i];
+			});
+		}]);
 
 	return controllerModule;
 });
