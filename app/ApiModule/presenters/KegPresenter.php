@@ -182,6 +182,6 @@ class KegPresenter extends BasePresenter
 		$this->inputData['keg'] = $id;
 		parent::actionCreate();
 	}
-
-
+	
+	
 }

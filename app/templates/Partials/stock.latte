@@ -83,74 +83,7 @@
 		</div>
 		<div title="&plus; Přidat" bs-pane>
 			<div class="panel-body">
-				<form class="form-horizontal" name="kegAdd.form" novalidate show-errors>
-					<div class="form-group">
-						<label for="quantity" class="col-sm-4 control-label">Počet sudů:</label>
-						<div class="col-sm-2">
-							<input name="quantity" type="number" min="1" step="1" tabindex="1" required
-								   class="form-control" id="quantity" ng-model="kegAdd.keg.quantity">
-							<p class="help-block" ng-show="kegAdd.form.quantity.$error.required">
-								Musíte zadat množství sudů, které chcete přidat.
-							</p>
-							<p class="help-block" ng-show="kegAdd.form.quantity.$error.number">
-								Množství musí být zadané jako celé číslo.
-							</p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-4 control-label">Kubatura:</label>
-						<div class="col-sm-2">
-							<select class="form-control" bs-select tabindex="2" required
-									ng-model="kegAdd.keg.volume" placeholder="Objem litrů..."
-									ng-options="volume as volume|liters for volume in ::kegAdd.keg.volumes">
-							</select>
-							<p class="help-block">
-								Musíte zvolit objem přidávaných sudů.
-							</p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="brewery" class="col-sm-4 control-label">Pivo:</label>
-						<div class="col-sm-8">
-							<select name="brewery" class="form-control" tabindex="3" required bs-select
-									ng-model="kegAdd.keg.brewery" ng-change="kegAdd.eventBrewerySelected()"
-									ng-options="brewery.id as brewery.name for brewery in ::breweries"
-									id="brewery" placeholder="Pivovar...">
-							</select>
-							<select name="beer" class="form-control" tabindex="4" required bs-select
-									ng-model="kegAdd.keg.beer" ng-change="kegAdd.eventBeerSelected()"
-									ng-options="beer.id as beer.name for beer in kegAdd.beers"
-									ng-show="kegAdd.keg.brewery" placeholder="Pivo...">
-							</select>
-							<p class="help-block" ng-show="kegAdd.form.brewery.$error.required">
-								Prosím, zvolte pivovar a druh piva pro nové zásoby.
-							</p>
-							<p class="help-block" ng-show="kegAdd.form.beer.$error.required && !kegAdd.form.brewery.$error.required">
-								Zapomněli jste zvolit druh piva pro nové zásoby.
-							</p>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="price" class="col-sm-4 control-label">Cena:</label>
-						<div class="col-sm-4">
-							<div class="input-group">
-								<input name="price" type="number" min="0" step=".01" tabindex="5" required
-									   class="form-control" id="price" ng-model="kegAdd.keg.price">
-								<div class="input-group-addon">Kč / sud</div>
-							</div>
-							<p class="help-block" ng-show="kegAdd.form.price.$error.required">
-								Prosím, zadejte cenu v Kč za 1 sud nových zásob.
-							</p>
-							<p class="help-block" ng-show="kegAdd.form.price.$error.number">
-								Jako cenu, prosím, uvádějte pouze cifry.
-							</p>
-						</div>
-					</div>
-					<p class="col-sm-8 col-sm-offset-4">
-						Přidat <span class="anchor-like" bs-modal data-template="modals/brewerynew">nový pivovar</span>
-						nebo <span class="anchor-like" bs-modal data-template="modals/beernew">nové pivo.</span>
-					</p>
-				</form>
+				{control kegAddForm}
 				<div id="new_stock_alert_container"></div>
 			</div>
 			<div class="panel-footer">

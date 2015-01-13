@@ -59,6 +59,7 @@ define([
 					init: function () {
 						this.keg = new Keg();
 						this.keg.quantity = 1;
+						this.beers = null;
 					},
 					save: function () {
 						$scope.$broadcast('show-errors-check-validity');
@@ -104,10 +105,7 @@ define([
 						}
 					},
 					eventBrewerySelected: function () {
-						Brewery.query({id: this.keg.brewery, relation: 'beer'},
-						function (data) {
-							this.beers = data;
-						});
+						this.beers = Brewery.query({id: this.keg.brewery, relation: 'beer'});
 					},
 					eventBeerSelected: function () {
 						var my = this;

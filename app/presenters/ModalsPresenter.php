@@ -18,4 +18,15 @@ class ModalsPresenter extends BasePresenter
 		Tracy\Debugger::$productionMode = true;
 	}
 
+	protected function createComponentBeerAddForm()
+	{
+		$form = new \App\Components\AngularForm('beerAdd.form', 'beerAdd.beer');
+		
+		$form->addField('text', 'name', 'Název')
+				->setValidation('required', 'Není zadaný název piva.');
+		
+		return $form;
+	}
+
+
 }
