@@ -45,6 +45,7 @@ define([
 					return dropdownData;
 				};
 				var Brewery = API('brewery');
+				var Beer = API('beer');
 
 				
 				Keg.query(function (data) {
@@ -146,6 +147,16 @@ define([
 					}
 				};
 				$scope.finished.getPage(1);
+				
+				$scope.beerAdd = {
+					init: function() {
+						this.beer = new Beer();
+						this.beer.brewery = $scope.kegAdd.keg.brewery;
+					},
+					save: function () {
+						
+					}
+				};
 			}]);
 	};
 

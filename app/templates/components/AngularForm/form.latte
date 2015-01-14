@@ -1,0 +1,24 @@
+<form name="{$form}" novalidate show-errors
+	  {if $type}class="form-{$type}"{/if}
+	  {ifset $init}ng-init="{$init}"{/ifset}>
+	<div class="form-group" n:foreach="$fields as $name => $field">
+		<label for="{$name}" class="col-sm-4 control-label">{$field->label}</label>
+		<div class="col-sm-{$field->cols ?: 8}">
+			
+			<span n:class="$field->addons ? input-group">
+				{ifset $field->addons[0]}{$field->addons[0]}{/ifset}
+				
+				{? $field->element->tabindex = $iterator->getCounter() + (isset($tabindex) ? (int) $tabindex : 0);}
+				{$field->element}				
+				
+				{ifset $field->addons[1]}{$field->addons[1]}{/ifset}
+			</span>
+				
+				{foreach $field->extra as $extra}{$extra}{/foreach}
+			
+			<p class="help-block" n:foreach="$field->validation as $problem => $message"
+			   ng-show="{$form}.{$name}.$error.{$problem}">{$message}</p>	
+			
+		</div>
+	</div>
+</form>

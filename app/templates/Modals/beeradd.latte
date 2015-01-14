@@ -3,5 +3,6 @@ Přidat nové pivo
 {/block}
 
 {block content}
-Zkušební
-{control beerAddForm}
+<div ng-init="$scope.beerAdd.init()">
+	{control beerAddForm:horizontal}
+</div>
