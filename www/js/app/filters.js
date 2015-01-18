@@ -54,6 +54,20 @@ define([
 				};
 			})
 
+			.filter('max', function ($filter) {
+				return function (array, property) {
+					var ordered = $filter('orderBy')(array, property, true);
+					return ordered[0][property];
+				};
+			})
+
+			.filter('min', function ($filter) {
+				return function (array, property) {
+					var ordered = $filter('orderBy')(array, property);
+					return ordered[0][property];
+				};
+			})
+
 			.filter('groupBy', function (Utils) {
 				if (typeof memory === 'undefined')
 					var memory = {};
@@ -85,20 +99,6 @@ define([
 				};
 			})
 
-			.filter('max', function ($filter) {
-				return function (array, property) {
-					var ordered = $filter('orderBy')(array, property, true);
-					return ordered[0][property];
-				};
-			})
-
-			.filter('min', function ($filter) {
-				return function (array, property) {
-					var ordered = $filter('orderBy')(array, property);
-					return ordered[0][property];
-				};
-			})
-
 			.filter('beerTranslate', function () {
 				return function (input) {
 					if (typeof input === 'string')
@@ -126,6 +126,12 @@ define([
 		.filter('capitalize', function () {
 				return function (string) {
 					return string.charAt(0).toUpperCase() + string.slice(1);
+				};
+			})
+			
+		.filter('nl2br', function () {
+				return function (string) {
+					return string.replace(/\n/g, '<br />');
 				};
 			});
 });

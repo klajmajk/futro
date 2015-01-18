@@ -35,6 +35,12 @@ define([], function () {
 								+ dif + pad(tzo / 60)
 								+ ':' + pad(tzo % 60);
 					};
+					
+					api.prototype.confirmDelete = function (message, successCallback, errorCallback) {
+						message = message || 'Opravdu smazat položku ID: ' + this.id;
+						if (confirm(message))
+							this.$delete(successCallback, errorCallback);
+					};
 
 					return api;
 				};

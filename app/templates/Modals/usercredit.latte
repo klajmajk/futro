@@ -19,7 +19,7 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 	<thead>
 		<tr>
 			<th>Částka</th>
-			<th>Čas operace</th>
+			<th>Čas transakce</th>
 			<th>Poznámka</th>
 		</tr>
 	</thead>
@@ -32,9 +32,9 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 								'text-success': credit.amount > 0
 							}"></td>
 			<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
-			<td ng-bind="(credit.keg ? 'Dopití sudu #' + credit.keg.id + ': ' +
-							credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + '. ' : '') +
-							(credit.note || '')|capitalize"></td>
+			<td ng-bind="credit.keg ? 'Keg #' + credit.keg.id + ': ' +
+					credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + ' (' +
+					(credit.keg.volume|liters) + ')' : (credit.note || ''|capitalize)"></td>
 		</tr>
 	</tbody>
 	<tfoot>
@@ -49,7 +49,7 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 
 {block footer}
 <button type="button" class="btn btn-primary float-left" bs-popover data-placement="top-left" data-template="addNewCredit">
-	Připsat vklad
+	Vklad na konto
 </button>
 {include parent}
 {/block}

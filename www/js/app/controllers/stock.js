@@ -9,45 +9,9 @@ define([
 		controllerModule.controller('StockController', [
 			'$scope', 'API', 'Utils', 'Keg', '$modal',
 			function ($scope, API, Utils, Keg, $modal) {
-				Keg.prototype.confirmDelete = function () {
-					var message = 'Opravdu smazat sud č.' + this.id + ' – ' +
-							this.beer.brewery.name + ' ' + this.beer.name +
-							' ' + (this.volume / 1000) + ' L';
-
-					if (confirm(message))
-						this.$delete(function () {
-							$scope.kegs = $scope.kegs.filter(function (value) {
-								return value.volume > 0;
-							});
-						});
-				};
-				Keg.prototype.getAllowedStates = function () {
-					switch (this.states.indexOf(this.state)) {
-						case 0:
-							var allowed = [this.states[1], 'remove'];
-							break;
-						case 1:
-							var allowed = [this.states[0], this.states[2]];
-							break;
-						default:
-							return null;
-					}
-
-					var i = allowed.length;
-					var dropdownData = [];
-					while (i--) {
-						dropdownData.push({
-							text: this.getStateLabel(allowed[i]),
-							click: allowed[i] === 'remove' ? 'keg.confirmDelete()' :
-									'(keg.state="' + allowed[i] + '") && keg.$save()'
-						});
-					}
-					return dropdownData;
-				};
 				var Brewery = API('brewery');
 				var Beer = API('beer');
 
-				
 				Keg.query(function (data) {
 					$scope.kegs = data;
 				});
@@ -95,10 +59,8 @@ define([
 						this.keg.$save(
 								function (keg) {
 									var message = 'Skladové zásoby obohaceny o ' +
-											quantity + 'x ' +
-											keg.volume / 1000 + ' L ' +
-											keg.beer.brewery.name +
-											' ' + keg.beer.name;
+											quantity + 'x ' + keg.volume / 1000 + ' L ' +
+											keg.beer.brewery.name +	' ' + keg.beer.name;
 									Utils.alertMessage('Dobrý!', message, 'success', '#new_stock_alert_container');
 
 									while (quantity--) {
@@ -110,9 +72,8 @@ define([
 								},
 								function (error) {
 									var message = 'Něco se pokazilo: <br /><br /><pre><strong>' +
-											error.data.status + ' ' +
-											error.data.code + ':</strong><br />' +
-											error.data.message + '</pre>';
+											error.data.status + ' ' + error.data.code +
+											':</strong><br />' + error.data.message + '</pre>';
 									Utils.alertMessage('Špatný!', message, 'danger', '#new_stock_alert_container');
 								}
 						);
@@ -142,17 +103,14 @@ define([
 				};
 				$scope.kegAdd.init();
 				
-				$scope.beerAdd = {
-					modal: $modal({
-						scope: $scope,
-						template: 'modals/beeradd',
-						show: false
-					}),
-					show: function() {
-						var my = this;
-						this.modal.$promise.then(my.modal.show);
-					},
-					init: function() {
+				
+				$scope.beerAdd = $modal({
+					scope: $scope,
+					template: 'modals/beeradd',
+					show: false
+				});
+				angular.extend($scope.beerAdd, {
+					init: function () {
 						this.beer = new Beer();
 						this.beer.brewery = $scope.kegAdd.keg.brewery;
 					},
@@ -160,52 +118,49 @@ define([
 						this.form.$setSubmitted();
 						if (this.form.$invalid)
 							return;
-						
-						var my = this;
+
+						var modal = this;
 						this.beer.$save(
-								function(beer) {
-									$scope.beerAdd.beers = $scope.beerAdd.beers || [];
-									$scope.beerAdd.beers.push(beer);
+								function (beer) {
+									$scope.kegAdd.beers.push(beer);
 									$scope.kegAdd.keg.beer = beer.id;
-									my.modal.hide();
+									modal.hide();
 								},
-								function(error) {
-									
+								function (error) {
+
 								});
 					}
-				};
-				
-				$scope.breweryAdd = {
-					modal: $modal({
-						scope: $scope,
-						template: 'modals/breweryadd',
-						show: false
-					}),
-					show: function() {
-						var my = this;
-						this.modal.$promise.then(my.modal.show);
-					},
-					init: function() {
+				});
+
+				$scope.breweryAdd = $modal({
+					scope: $scope,
+					template: 'modals/breweryadd',
+					show: false
+				});
+				angular.extend($scope.breweryAdd, {
+					init: function () {
 						this.brewery = new Brewery();
 					},
 					save: function () {
 						this.form.$setSubmitted();
 						if (this.form.$invalid)
 							return;
-						
-						var my = this;
+
+						var modal = this;
 						this.brewery.$save(
-								function(brewery) {
+								function (brewery) {
 									$scope.breweries.push(brewery);
 									$scope.kegAdd.keg.brewery = brewery.id;
-									my.modal.hide();
+									$scope.kegAdd.eventBrewerySelected();
+									modal.hide();
 									$scope.beerAdd.show();
 								},
-						function(error) {
-							
-						})
+								function (error) {
+
+								});
 					}
-				};
+				});
+						
 			}]);
 	};
 

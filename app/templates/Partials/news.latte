@@ -6,7 +6,7 @@
 		</div>
 		<div class="panel-collapse" bs-collapse-target>
 			<div class="panel-body">
-				<p ng-bind="message.body"></p>
+				<p ng-bind-html="message.body|nl2br"></p>
 				<p class="text-right">&mdash; {{ ::message.user.name }}</p>
 			</div>
 		</div>

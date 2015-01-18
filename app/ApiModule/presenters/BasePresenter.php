@@ -112,8 +112,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	 */
 	protected function getItem($id)
 	{
-		$row = $this->table->get($id);
-		if ($row === FALSE)
+		if (($row = $this->table->get($id)) === FALSE)
 			throw BadRequestException::notFound('No record for ID: '.$id);
 		$item = $row->toArray();
 		if ($this->deepListing)
@@ -289,8 +288,8 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 			$res = $this->table->limit(1)->fetchAll();
 			$row = reset($res);
 		}
-		$array = $row->toArray();
-
+		
+		$array = $row ? $row->toArray() : NULL;
 		foreach ($this->inputData as $key => &$value)
 			if ($row && !array_key_exists($key, $array)) {
 				unset($this->inputData[$key]);
