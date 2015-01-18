@@ -3,6 +3,11 @@ Přidat nové pivo
 {/block}
 
 {block content}
-<div ng-init="$scope.beerAdd.init()">
+<div ng-init="beerAdd.init()">
 	{control beerAddForm:horizontal}
 </div>
+{/block}
+
+{block footer}
+<button type="button" class="btn btn-success" ng-click="beerAdd.save()">Zapsat změny</button>
+{include parent}

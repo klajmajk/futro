@@ -2,7 +2,8 @@
 
 namespace App\Presenters;
 
-use Tracy;
+use Tracy,
+	Nette\Utils\Html;
 
 /**
  * Description of PagePresenter
@@ -11,11 +12,13 @@ use Tracy;
  */
 class PartialsPresenter extends BasePresenter
 {
+
+
 	public function startup()
 	{
 		parent::startup();
-		
-		//Tracy\Debugger::$productionMode = true;
+
+		Tracy\Debugger::$productionMode = true;
 		$this->layout = FALSE;
 	}
 	
@@ -23,7 +26,11 @@ class PartialsPresenter extends BasePresenter
 	protected function createComponentKegAddForm()
 	{
 		$form = new \App\Components\AngularForm('kegAdd.form', 'kegAdd.keg');
-		
+		$extra = Html::el('span');
+		$extra->class = ('anchor-like');
+		$extra->setHtml('&nbsp;&nbsp;')
+				->create('i', array('class' => array('glyphicon', 'glyphicon-plus')));
+
 		$form->addField('number', 'quantity', 'Počet sudů')
 				->setCols(2)
 				->setAttribute('min', 1)
@@ -35,21 +42,24 @@ class PartialsPresenter extends BasePresenter
 				->setAttribute('bs-select')
 				->setAttribute('ng-options', 'volume as volume|liters for volume in ::kegAdd.keg.volumes')
 				->setValidation('required', 'Musíte zvolit objem přidávaných sudů.');
-		
+
+		$addNew = clone $extra;
+		$addNew->add(' Přidat nový pivovar')
+				->addAttributes(array('ng-click' => 'breweryAdd.show()'));
 		$form->addField('select', 'brewery', 'Pivovar', 'Pivovar...')
 				->setAttribute('bs-select')
 				->setAttribute('ng-options', 'brewery.id as brewery.name for brewery in breweries')
 				->setAttribute('ng-change', 'kegAdd.eventBrewerySelected()')
 				->setValidation('required', 'Prosím, zvolte pivovar pro nové zásoby.')
-				->setExtra($form->createAddNewModal('Přidat nový pivovar', 'modals/breweryadd'));
-		
+				->setExtra($addNew);
+
 		$form->addField('select', 'beer', 'Pivo', 'Pivo...')
 				->setAttribute('bs-select')
 				->setAttribute('ng-options', 'beer.id as beer.name for beer in kegAdd.beers')
 				->setAttribute('ng-change', 'kegAdd.eventBeerSelected()')
 				->setValidation('required', 'Nezapomeňte zadat druh piva k naskladnění.')
-				->setExtra($form->createAddNewModal('Přidat nové pivo', 'modals/beeradd'));;
-		
+				->setExtra($form->createAddNewModal('Přidat nové pivo', 'modals/beeradd'));
+
 		$form->addField('number', 'price', 'Cena')
 				->setCols(4)
 				->setAddons(NULL, 'Kč / sud')
@@ -60,7 +70,5 @@ class PartialsPresenter extends BasePresenter
 
 		return $form;
 	}
-	
-	
 
 }

@@ -2,8 +2,6 @@
 
 namespace App\ApiModule\Presenters;
 
-use Nette,
-    Drahak\Restful\IResource;
 
 /**
  * CRUD resource presenter

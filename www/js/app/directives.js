@@ -66,6 +66,7 @@ define([
 
 						if (i === 0)
 							return;
+						
 						while (i--) {
 							var input = formGroups[i].querySelector('[name]');
 							if (!input)
@@ -77,10 +78,10 @@ define([
 							});
 						}
 
-						scope.$on('show-errors-check-validity', function () {
-							for (var name in fields)
-								if (fields.hasOwnProperty(name))
-									checkValidity(name);
+						scope.$on('show-errors-check-validity', function (event, form) {
+							for (var field in form)
+								if (form.hasOwnProperty(field) && fields.hasOwnProperty(field))
+									checkValidity(field);
 						});
 
 						function checkValidity(name) {

@@ -6,8 +6,12 @@ define([], function () {
 			function ($resource) {
 				var apiPath = '/futro/';
 
-				return function (presenter) {
-					var paramDefaults = apiPath + presenter + '/:id/:relation/:relationId';
+				return function (presenter, id, relation) {
+					var paramDefaults = apiPath +
+							(presenter || ':presenter') + '/' +
+							(id || ':id') + '/' +
+							(relation || ':relation') +
+							'/:relationId';
 					var api = $resource(paramDefaults, {id: '@id'}, {
 						update: {method: 'PUT'},
 						get: {method: 'GET', cache: true, params: {outputAssoc: 1}},

@@ -23,7 +23,7 @@ class UserPresenter extends BasePresenter
 	{
 		$this->input->field('name')->addRule(IValidator::REQUIRED, 'Missing required field: name.');
 		$this->input->field('email')->addRule(IValidator::REQUIRED, 'Missing required field: email.');
-		$this->input->field('password')->addRUle(array($this, 'validateNewPassword'), 'Bad format of new password.');
+		$this->input->field('password')->addRule(array($this, 'validateNewPassword'), 'Bad format of new password.');
 	}
 
 
@@ -32,29 +32,6 @@ class UserPresenter extends BasePresenter
 		$this->input->field('email')->addRule(IValidator::EMAIL, 'Invalid email address.');
 		$this->input->field('phone')->addRule(IValidator::PATTERN, 'Invalid phone number.', self::PHONE_PATTERN);
 	}
-
-
-	public function actionCreate()
-	{
-		$this->inputData['password'] = Security\Passwords::hash($this->inputData['password']);
-		$this->inputData['role'] = self::$roles[0];
-
-		parent::actionCreate();
-	}
-
-
-	public function actionUpdate($id)
-	{
-		unset($this->inputData['balance'], $this->inputData['role']);
-		if (!empty($this->inputData['password'])) {
-			$this->validatePasswordUpdate($id);
-		} else {
-			unset($this->inputData['password']);
-		}
-
-		parent::actionUpdate($id);
-	}
-
 
 	private function validatePasswordUpdate($id)
 	{
@@ -97,6 +74,39 @@ class UserPresenter extends BasePresenter
 					array($ex->getMessage), 'Bad format of new password.');
 		}
 	}
+	
+	
+	public static function normalizePhone(&$phoneNr)
+	{
+		$phoneNr = '+'.substr('420'.preg_replace('#\D#', '', $phoneNr), -12);
+	}
+	
+
+	public function actionCreate()
+	{
+		$this->inputData['password'] = Security\Passwords::hash($this->inputData['password']);
+		$this->inputData['role'] = self::$roles[0];
+		if (isset($this->inputData['phone']))
+			self::normalizePhone ($this->inputData['phone']);	
+
+		parent::actionCreate();
+	}
+
+
+	public function actionUpdate($id)
+	{
+		unset($this->inputData['balance'], $this->inputData['role']);
+		if (isset($this->inputData['phone']))
+			self::normalizePhone ($this->inputData['phone']);
+		if (!empty($this->inputData['password'])) {
+			$this->validatePasswordUpdate($id);
+		} else {
+			unset($this->inputData['password']);
+		}		
+
+		parent::actionUpdate($id);
+	}
+
 
 
 	public function actionRead($id)
@@ -140,4 +150,18 @@ class UserPresenter extends BasePresenter
 	}
 
 
+	public function actionCreateCredit($id)
+	{
+		$this->inputData['user'] = $id;
+		try {
+			$this->db->beginTransaction();
+			$updateQuery = 'UPDATE `user` SET `balance` = `balance` + ? WHERE `id` = ?';
+			$this->db->query($updateQuery, $this->inputData['amount'], $id);
+			parent::actionCreate();
+		} catch (\Nette\Application\AbortException $ex) {
+			$this->db->commit();
+		} catch (\Exception $ex) {
+			$this->db->rollback();
+		}
+	}
 }

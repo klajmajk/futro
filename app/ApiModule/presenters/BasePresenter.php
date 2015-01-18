@@ -49,23 +49,18 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	{
 		try {
 			$id = $this->getParameter('id');
-			if ($id !== NULL && $this->isValidId($id) === FALSE)
-				throw BadRequestException::methodNotSupported(
-						'Url must follow convention /presenter/id/relation/relationId.'.
-						' Valid ID is only positive, non zero integer.');
-
-			$id = $this->isValidId($id);
-			$input = $this->input->getData();
-			if (isset($input['id']) && $this->isValidId($input['id']) !== $id)
-				throw BadRequestException::unprocessableEntity(
-						array('ID in request body not match to ID in url'));
-
-			if ($this->getAction() === 'create' && $id !== FALSE)
-				$this->changeAction('update');
+			if ($id !== NULL && ($id = $this->isValidId($id)) === FALSE)
+					throw BadRequestException::methodNotSupported(
+							'Url must follow convention /presenter/id/relation/relationId.'.
+							' Valid ID is only positive, non zero integer.');
+			
+			$action = $this->getAction();
+			if ($action === 'create' && $id)
+					$this->changeAction('update');
 
 			parent::startup();
-
-			if ($this->getAction() !== 'read')
+			
+			if ($action !== 'read')
 				$this->inputData = $this->inputData ? : $this->getInputData();
 
 			if (($relation = $this->getParameter('relation')) !== NULL) {
@@ -222,9 +217,9 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	public function actionCreate()
 	{
 		try {
+			unset($this->inputData['id']);
 			$this->inputData['date_add'] = new Nette\Utils\DateTime(
-					empty($this->inputData['date_add']) ?
-							NULL : $this->inputData['date_add']);
+					empty($this->inputData['date_add']) ? NULL : $this->inputData['date_add']);
 			$this->harmonizeInputData();
 			$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();
@@ -294,9 +289,10 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 			$res = $this->table->limit(1)->fetchAll();
 			$row = reset($res);
 		}
+		$array = $row->toArray();
 
 		foreach ($this->inputData as $key => &$value)
-			if ($row && !$row->offsetExists($key)) {
+			if ($row && !array_key_exists($key, $array)) {
 				unset($this->inputData[$key]);
 			} else if (is_array($value)) {
 				if ($this->isValidId($value['id'])) {

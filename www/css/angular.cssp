@@ -21,7 +21,7 @@
 			&.ng-leave-active
 				opacity: 0
 
-body > div.consumption-popover
+.wide
 	max-width: 600px
 
 .keg-info
@@ -44,12 +44,13 @@ body > div.consumption-popover
 	&.in-add
 		animation-name: expand
 
-form[show-errors] .form-group
+form[novalidate] .form-group
 	.help-block
 		display: none
 	&.has-error .help-block
 		display: block
 
-.modal-footer dir-pagination-controls
-	float: left
-	line-height: 34px
+.modal-footer
+	dir-pagination-controls, .float-left
+		float: left
+

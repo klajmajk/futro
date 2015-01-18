@@ -5,7 +5,8 @@ namespace App\ApiModule\Presenters;
 use Nette,
 	Drahak\Restful\IResource,
 	Drahak\Restful\Validation\IValidator,
-	Drahak\Restful\Application\BadRequestException;;
+	Drahak\Restful\Application\BadRequestException;
+;
 
 /**
  * CRUD resource presenter
@@ -22,12 +23,12 @@ class KegPresenter extends BasePresenter
 	/** possible keg states in order new >>> depleted
 	 * @var array */
 	public static $states = array('STOCKED', 'TAPPED', 'FINISHED');
-	
+
 	/** extra store for $this->deepListing
 	 * @var array */
 	private $listing = array('beer' => array('brewery'));
 
-	
+
 	public function __construct(Nette\Database\Context $database)
 	{
 		parent::__construct($database);
@@ -35,8 +36,8 @@ class KegPresenter extends BasePresenter
 		$this->deepListing = $this->listing;
 		$this->queryFilter = array('state' => array('default' => array('TAPPED', 'STOCKED')));
 	}
-	
-	
+
+
 	public function validateCreate()
 	{
 		$this->input->field('volume')->addRule(IValidator::IS_IN, 'Unsupported keg volume.', self::$volumes);
@@ -47,27 +48,28 @@ class KegPresenter extends BasePresenter
 	{
 		$this->input->field('state')->addRule(IValidator::IS_IN, 'Unsupported keg state.', self::$states);
 	}
-	
+
+
 	public function actionRead($id)
 	{
 		if (strcasecmp($this->getParameter('state'), self::$states[2]) === 0)
 			$this->table
-				->select('keg.*, SUM(:consumption.volume) AS total_consumption')
-				->group('keg.id');
-		
+					->select('keg.*, SUM(:consumption.volume) AS total_consumption')
+					->group('keg.id');
+
 		parent::actionRead($id);
 	}
-	
+
+
 	public function actionCreate()
 	{
 		try {
 			$this->inputData['state'] = self::$states[0];
 			$this->inputData['date_add'] = new Nette\Utils\DateTime(
-					empty($this->inputData['date_add']) ?
-							NULL : $this->inputData['date_add']);		
+					empty($this->inputData['date_add']) ? NULL : $this->inputData['date_add']);
 			$quantity = empty($this->inputData['quantity']) ? 1 : (int) $this->inputData['quantity'];
 			$this->harmonizeInputData();
-			while($quantity--)
+			while ($quantity--)
 				$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();
 			$this->getDeepData($this->resource, $row, $this->deepListing);
@@ -80,21 +82,23 @@ class KegPresenter extends BasePresenter
 
 	public function actionUpdate($id)
 	{
-		$e = BadRequestException::methodNotSupported('Keg can be modified only in relation to tap');
-		$this->sendErrorResource($e);
+		$message = 'Keg can be modified only in relation to tap';
+		$exception = BadRequestException::methodNotSupported($message);
+		$this->sendErrorResource($exception);
 	}
-	
+
+
 	public function actionUpdateTap($id, $relationId)
 	{
 		$tap = $this->db->table('tap')->get($relationId);
 		$keg = $this->db->table('keg')->get($id);
 
 		$errors = [];
-		
-		try {			
+
+		try {
 			// db transaction - no db changes will be stored if error occurs
 			$this->db->beginTransaction();
-			
+
 			if ($keg->state === $this->inputData['state']) {
 				$errors[] = 'No change in state. Other values cannot be modified';
 			} else if ($keg->state === self::$states[2]) {
@@ -109,7 +113,7 @@ class KegPresenter extends BasePresenter
 			$dataKeg = array('state' => $this->inputData['state']);
 			$dataTap = array('keg' => NULL);
 
-			switch (array_search($this->inputData['state'], self::$states)) {
+			switch (array_search($this->inputData['state'], self::$states)) {				
 				case 1:
 					if ($tap->keg !== NULL) {
 						$errors[] = 'Tap already in use.';
@@ -122,16 +126,16 @@ class KegPresenter extends BasePresenter
 					break;
 				case 2:
 					$data['date_end'] = new Nette\Utils\DateTime(empty($this->inputData['date_end']) ?
-							NULL : $this->inputData['date_end']);
+									NULL : $this->inputData['date_end']);
 					$this->finishAndAccount($keg, $data['date_end']);
 				// there is no break; because following actions applies also for previous case
 				case 0:
 					if ($tap->keg != $id)
 						$errors[] = 'This keg is not assigned to this tap.';
 			}
-			
+
 			if (count($errors) > 0)
-				throw BadRequestException::unprocessableEntity ($errors, 'Invalid Keg to Tap relation.');
+				throw BadRequestException::unprocessableEntity($errors, 'Invalid Keg to Tap relation.');
 
 			$keg->update($dataKeg);
 			$tap->update($dataTap);
@@ -145,7 +149,8 @@ class KegPresenter extends BasePresenter
 		$this->getDeepData($this->resource, $keg, $this->listing);
 		$this->sendResource(IResource::JSON);
 	}
-	
+
+
 	private function finishAndAccount(Nette\Database\Table\ActiveRow $keg, $datetime)
 	{
 		$consumption = $keg->related('consumption.keg')
@@ -171,17 +176,19 @@ class KegPresenter extends BasePresenter
 	 * relation: keg/<id>/consumption
 	 * outputs consumed ml from keg
 	 * @param int $relationId
-	 */	
+	 */
 	public function actionReadConsumption($relationId)
-	{		
+	{
 		parent::actionRead($relationId);
 	}
-	
+
+
 	public function actionCreateConsumption($id)
 	{
 		$this->inputData['keg'] = $id;
+		
 		parent::actionCreate();
 	}
-	
-	
+
+
 }

@@ -6,9 +6,9 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 {include parent}
 <p ng-init="user.getCredit()">
 	Celkem vloženo / odečteno / rozdíl:
-	<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
+	<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
 	/
-	<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
+	<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
 	/
 	<strong><span ng-bind="user.balance|number:2"></span> Kč</strong>
 </p>
@@ -34,7 +34,7 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 			<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
 			<td ng-bind="(credit.keg ? 'Dopití sudu #' + credit.keg.id + ': ' +
 							credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + '. ' : '') +
-							(credit.note || '')"></td>
+							(credit.note || '')|capitalize"></td>
 		</tr>
 	</tbody>
 	<tfoot>
@@ -45,3 +45,22 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 		</tr>
 	</tfoot>
 </table>
+{/block}
+
+{block footer}
+<button type="button" class="btn btn-primary float-left" bs-popover data-placement="top-left" data-template="addNewCredit">
+	Připsat vklad
+</button>
+{include parent}
+{/block}
+
+{block snippets}
+<div cache-template="addNewCredit">
+	<div class="popover" style="min-width:550px;">
+		<div class="arrow"></div>
+		<h3 class="popover-title">Připsat vklad</h3>
+		<div class="popover-content">
+			{control creditAddForm:inline}
+		</div>
+	</div>
+</div>

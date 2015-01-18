@@ -2,8 +2,6 @@
 
 namespace App\ApiModule\Presenters;
 
-use Nette,
-	Drahak\Restful\IResource;
 
 /**
  * CRUD resource presenter
@@ -16,7 +14,7 @@ class BreweryPresenter extends BasePresenter
 	public function actionRead($id)
 	{
 		if ($id === NULL)
-			$this->table = $this->table->order('name ASC');
+			$this->table->order('name ASC');
 		parent::actionRead($id);
 	}
 

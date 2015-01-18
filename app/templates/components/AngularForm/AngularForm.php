@@ -22,6 +22,9 @@ class AngularForm extends Control
 	private $formObject;
 	private $formModels;
 	private $formFields;
+	
+	public $init;
+	public $class;
 
 
 	public function __construct($formObject, $formModels)
@@ -39,26 +42,50 @@ class AngularForm extends Control
 	{
 		$field = new AngularFormField($type, $name, $label, $placeholder, $attributes);
 		$field->setAttribute('ng-model', $this->formModels.'.'.$name);
-		$field->element->class[] = 'form-control';
+		$field->control->class[] = 'form-control';
 
 		return $this->formFields[$name] = $field;
 	}
-
-
-	public function renderHorizontal()
+	
+	public function addButton($type, $text, $ngClick, $context = 'default')
 	{
+		$button = Utils\Html::el('button', array(
+			'type' => $type,
+			'class' => array('btn', 'btn-'.$context),
+			'ng-click' => $ngClick
+			));
+		$button->setText($text);
+		
+		return $this->formFields[$type] = $button;
+	}
+	
+
+	public function renderHorizontal($gridType = 'sm', $labelCols = 4)
+	{
+		$grid = $this->template->grid = 'col-'.$gridType.'-';
+		foreach ($this->formFields as $field)
+			if ($field instanceof AngularFormField) {
+				$field->label->class = array($grid.$labelCols, 'control-label');
+				$field->cols = $field->cols ? : 12 - $labelCols;
+			}
 		$this->render('horizontal');
 	}
 
 
 	public function renderInline()
 	{
+		foreach ($this->formFields as $field)
+			if ($field instanceof AngularFormField) {
+				$field->label->class = array('sr-only');
+				$field->control->placeholder = $field->label->getText();
+			}
+
 		$this->render('inline');
 	}
 
 
 	public function render($formType = NULL)
-	{
+	{		
 		$template = $this->template;
 		$template->setFile(__DIR__.'/form.latte');
 
@@ -66,15 +93,17 @@ class AngularForm extends Control
 		$template->form = $this->formObject;
 		$template->fields = $this->formFields;
 		$template->models = $this->formModels;
+		$template->init = $this->init;
+		$template->class= $this->class;
 
 		$template->render();
 	}
 
 
-	public function createAddNewModal($title, $modalTemplate)
+	public function createAddNewModal($title, $modalTemplate, $modalObject = TRUE)
 	{
 		$el = Utils\Html::el('span', array(
-					'bs-modal' => TRUE,
+					'bs-modal' => $modalObject,
 					'data-template' => $modalTemplate,
 					'class' => array('anchor-like')
 		));
@@ -91,10 +120,9 @@ class AngularForm extends Control
 class AngularFormField
 {
 
-	public $element;
+	public $control;
 	public $validation;
 	public $label;
-	public $placeholder;
 	public $cols;
 	public $addons;
 	public $extra;
@@ -103,18 +131,46 @@ class AngularFormField
 	public function __construct($type, $name, $label = NULL, $placeholder = NULL, array $attributes = array())
 	{
 		list($element, $type) = $this->isValidType($type);
-		$this->element = Utils\Html::el($element, $attributes);
-		$this->element->name = $this->element->id = $name;
-		$this->label = $label ? : $name;
-		if ($type)
-			$this->element->type = $type;
-		if ($placeholder)
-			$this->element->placeholder = $placeholder;
-
+		$this->control = Utils\Html::el($element, $attributes + array(
+			'name' => $name,
+			'type' => $type,
+			'id' => 'id_'.$name,
+			'placeholder' => $placeholder
+		));
+		$this->label = Utils\Html::el('label', array('for' => 'id_'.$name))
+				->setText($label ? : $name);
+		
 		$this->validation = array();
 		$this->extra = array();
 	}
+	
+	public function getName()
+	{
+		return $this->control->getName();
+	}
+	
+	public function getLabel()
+	{
+		return $this->label;
+	}
 
+	public function getControl($tabindex = NULL)
+	{
+		$control = $this->control;
+		$control->tabindex = $tabindex;
+		
+		if ($this->addons) {
+			$group = Utils\Html::el('span', array('class' => array('input-group')));
+			if (!empty($this->addons[0]))
+				$group->add($this->addons[0]);
+			$group->add($control);
+			if (!empty($this->addons[1]))
+				$group->add($this->addons[1]);
+			$control = $group;
+		}
+				
+		return $control;
+	}
 
 	private function isValidType($type)
 	{
@@ -149,7 +205,7 @@ class AngularFormField
 
 	public final function setAttribute($attribute, $value = TRUE)
 	{
-		$this->element->$attribute = $value;
+		$this->control->$attribute = $value;
 
 		return $this;
 	}
@@ -157,8 +213,8 @@ class AngularFormField
 
 	public final function setValidation($problem, $message, $config = TRUE)
 	{
-		if (!isset($this->element->type) || strcasecmp($this->element->type, $problem) !== 0)
-			$this->element->$problem = $config;
+		if (!isset($this->control->type) || strcasecmp($this->control->type, $problem) !== 0)
+			$this->control->$problem = $config;
 
 		$this->validation[$problem] = $message;
 
