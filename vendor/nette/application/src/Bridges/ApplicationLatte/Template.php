@@ -49,7 +49,7 @@ class Template extends Nette\Object implements Nette\Application\UI\ITemplate
 	 */
 	public function render($file = NULL, array $params = array())
 	{
-		$this->latte->render($file ?: $this->file, $params ?: $this->params);
+		$this->latte->render($file ?: $this->file, $params + $this->params);
 	}
 
 
@@ -107,7 +107,7 @@ class Template extends Nette\Object implements Nette\Application\UI\ITemplate
 	 */
 	public function registerHelperLoader($loader)
 	{
-		//trigger_error(__METHOD__ . '() is deprecated, use dynamic getLatte()->addFilter().', E_USER_DEPRECATED);
+		trigger_error(__METHOD__ . '() is deprecated, use dynamic getLatte()->addFilter().', E_USER_DEPRECATED);
 		$latte = $this->latte;
 		$this->latte->addFilter(NULL, function($name) use ($loader, $latte) {
 			if ($callback = call_user_func($loader, $name)) {
@@ -195,6 +195,16 @@ class Template extends Nette\Object implements Nette\Application\UI\ITemplate
 	public function getParameters()
 	{
 		return $this->params;
+	}
+
+
+	/**
+	 * @deprecated
+	 */
+	public function __call($name, $args)
+	{
+		trigger_error('Invoking filters on Template object is deprecated, use getLatte()->invokeFilter().', E_USER_DEPRECATED);
+		return $this->latte->invokeFilter($name, $args);
 	}
 
 

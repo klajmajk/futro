@@ -34,32 +34,7 @@ class ApiRequestFactory
 	 */
 	public function createHttpRequest()
 	{
-		$request = $this->factory->createHttpRequest();
-
-		return new Request(
-			$request->getUrl(), $request->getQuery(), $request->getPost(), $request->getFiles(), $request->getCookies(), $request->getHeaders(),
-			$this->getPreferredMethod($request), $request->getRemoteAddress()
-		);
-	}
-
-	/**
-	 * Get prederred method 
-	 * @param  IRequest $request 
-	 * @return string            
-	 */
-	protected function getPreferredMethod(IRequest $request)
-	{
-		$method = $request->getMethod();
-		$isPost = $method === IRequest::POST;
-		$header = $request->getHeader(self::OVERRIDE_HEADER);
-		$param = $request->getQuery(self::OVERRIDE_PARAM);
-		if ($header && $isPost) {
-			return $header;
-		}
-		if ($param && $isPost) {
-			return $param;
-		}
-		return $request->getMethod();
+		return $this->factory->createHttpRequest();
 	}
 
 }

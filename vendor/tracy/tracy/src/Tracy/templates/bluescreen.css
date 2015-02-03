@@ -1,8 +1,5 @@
 /**
- * Debugger Bluescreen
- *
  * This file is part of the Tracy (http://tracy.nette.org)
- * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
 html {
@@ -68,13 +65,25 @@ html {
 	display: block;
 }
 
-#tracyBluescreenError #tracyBsSearch {
-	color: #CD1818;
+#tracyBluescreenError a {
+	color: white !important;
+	opacity: 0;
 	font-size: .7em;
 }
 
-#tracyBluescreenError:hover #tracyBsSearch {
-	color: #ED8383;
+#tracyBluescreenError:hover a {
+	opacity: .6;
+}
+
+#tracyBluescreenError a:hover {
+	opacity: 1;
+}
+
+#tracyBluescreenIEWarning {
+	background: black;
+	margin: 1em;
+	padding: .5em;
+	text-align: center;
 }
 
 #tracyBluescreen h1 {
@@ -211,22 +220,26 @@ html {
 	font-style: normal;
 }
 
+#tracyBluescreen pre:hover span[title] {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
 #tracyBluescreen a[href^=editor\:] {
 	color: inherit;
-	border-bottom: 1px dotted rgba(0, 0, 0, .2);
+	border-bottom: 1px dotted rgba(0, 0, 0, .3);
 }
 
 #tracyBluescreen span[data-tracy-href] {
-	border-bottom: 1px dotted rgba(0, 0, 0, .2);
+	border-bottom: 1px dotted rgba(0, 0, 0, .3);
 }
 
 
 /* toggle */
-html.js #tracyBluescreen .tracy-collapsed {
+html.tracy-js #tracyBluescreen .tracy-collapsed {
 	display: none;
 }
 
-html.js #tracyBluescreen .tracy-toggle.tracy-collapsed {
+html.tracy-js #tracyBluescreen .tracy-toggle.tracy-collapsed {
 	display: inline;
 }
 

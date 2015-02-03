@@ -10,12 +10,12 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 	/
 	<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
 	/
-	<strong><span ng-bind="user.balance|number:2"></span> Kč</strong>
+	<strong ng-bind="user.balance|currency"></strong>
 </p>
 {/block}
 
 {block body}
-<table class="table table-condensed table-striped">
+<table class="table table-condensed table-striped" ng-init="totalItems = user.credit.length > 0 ? user.credit[0].metadata.count : 0">
 	<thead>
 		<tr>
 			<th>Částka</th>
@@ -26,8 +26,8 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 	<tbody>
 		<tr dir-paginate="credit in user.credit|orderBy:'-id'
 			|itemsPerPage:user.creditPerPage track by credit.id"
-			total-items="user.credit.length > 0 ? user.credit[0].metadata.count : 0">
-			<td class="text-right" ng-bind="(credit.amount|number:2) + ' Kč'" ng-class="{
+			total-items="totalItems">
+			<td class="text-right" ng-bind="credit.amount|currency" ng-class="{
 								'text-danger': credit.amount <= 0,
 								'text-success': credit.amount > 0
 							}"></td>
@@ -37,7 +37,7 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 					(credit.keg.volume|liters) + ')' : (credit.note || ''|capitalize)"></td>
 		</tr>
 	</tbody>
-	<tfoot>
+	<tfoot ng-show="totalItems > user.creditPerPage">
 		<tr>
 			<td colspan="3" class="text-center">
 				<dir-pagination-controls on-page-change="user.getCredit(newPageNumber)"></dir-pagination-controls>
@@ -48,7 +48,8 @@ Pohyb na účtu &ndash; {{ ::user.name}}
 {/block}
 
 {block footer}
-<button type="button" class="btn btn-primary float-left" bs-popover data-placement="top-left" data-template="addNewCredit">
+<button type="button" class="btn btn-primary float-left" ng-if="isManager"
+		bs-popover data-placement="top-left" data-template="addNewCredit">
 	Vklad na konto
 </button>
 {include parent}

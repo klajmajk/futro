@@ -4,14 +4,16 @@ require.config({
 	baseUrl: 'js/vendor',	
 	paths: {
 		app:				'../app',
-		angular:			'//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min',
-		angularRoute:		'//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.min',
-		angularAnimate:		'//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-animate.min',
-		angularResource:	'//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-resource.min',
-		angularSanitize:	'//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-sanitize.min',
-		angularStrap:		'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.5/angular-strap.min',
-		angularStrapTpl:	'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.5/angular-strap.tpl.min',
-		angularChart:		'chart/angular-chart'
+		angular:			'//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.min',
+		angularRoute:		'//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-route.min',
+		angularAnimate:		'//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-animate.min',
+		angularResource:	'//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-resource.min',
+		angularSanitize:	'//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-sanitize.min',
+		angularStrap:		'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.min',
+		angularStrapTpl:	'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.tpl.min',
+		angularChart:		'chart/angular-chart',
+		textAngular:		'//cdnjs.cloudflare.com/ajax/libs/textAngular/1.2.2/textAngular.min',
+		angularCzech:		'i18n/angular-locate_cs-cz'
 	},
 	shim: {
 		angular : {exports : 'angular'},
@@ -22,7 +24,9 @@ require.config({
 		angularStrap: ['angular'],
 		angularStrapTpl: ['angularStrap'],
 		angularChart: ['angular','chart/chart.min'],
-		dirPagination: ['angular']
+		dirPagination: ['angular'],
+		textAngular: ['angular', 'rangy.min'],
+		angularCzech: ['angular']
 	},
 	priority: [
 		'angular'

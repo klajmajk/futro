@@ -11,7 +11,7 @@
 
 	<title>{ifset #title}{include title|striptags} | {/ifset}Kumpanium</title>
 	
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	{ifset #cssp}<link rel="stylesheet" href="{$basePath}/css/turbine/css.php?files={include cssp}" />{/ifset}
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	{block head}{/block}
@@ -22,8 +22,7 @@
 	
 	<div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
 	
-	{block content}{/block}
-
+	{include content}
 	{block scripts}{/block}
 </body>
 </html>

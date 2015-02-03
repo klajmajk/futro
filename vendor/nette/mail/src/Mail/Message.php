@@ -213,13 +213,14 @@ class Message extends MimePart
 
 	/**
 	 * Sets HTML body.
-	 * @param  string|Nette\Templating\ITemplate
+	 * @param  string
 	 * @param  mixed base-path or FALSE to disable parsing
 	 * @return self
 	 */
 	public function setHtmlBody($html, $basePath = NULL)
 	{
 		if ($html instanceof Nette\Templating\ITemplate || $html instanceof Nette\Application\UI\ITemplate) {
+			trigger_error('Support for Nette\Templating is deprecated.', E_USER_DEPRECATED);
 			$html->mail = $this;
 			if ($basePath === NULL && ($html instanceof Nette\Templating\IFileTemplate || $html instanceof Nette\Application\UI\ITemplate)) {
 				$basePath = dirname($html->getFile());
@@ -361,7 +362,7 @@ class Message extends MimePart
 				}
 			}
 			$alt->setContentType('text/html', 'UTF-8')
-				->setEncoding(preg_match('#\S{990}#', $mail->html)
+				->setEncoding(preg_match('#[^\n]{990}#', $mail->html)
 					? self::ENCODING_QUOTED_PRINTABLE
 					: (preg_match('#[\x80-\xFF]#', $mail->html) ? self::ENCODING_8BIT : self::ENCODING_7BIT))
 				->setBody($mail->html);
@@ -370,7 +371,7 @@ class Message extends MimePart
 		$text = $mail->getBody();
 		$mail->setBody(NULL);
 		$cursor->setContentType('text/plain', 'UTF-8')
-			->setEncoding(preg_match('#\S{990}#', $text)
+			->setEncoding(preg_match('#[^\n]{990}#', $text)
 				? self::ENCODING_QUOTED_PRINTABLE
 				: (preg_match('#[\x80-\xFF]#', $text) ? self::ENCODING_8BIT : self::ENCODING_7BIT))
 			->setBody($text);

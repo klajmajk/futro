@@ -2,7 +2,7 @@
 
 namespace App\Presenters;
 
-use Tracy;
+use Tracy\Debugger;
 
 /**
  * Description of PagePresenter
@@ -17,7 +17,7 @@ class ModalsPresenter extends BasePresenter
 	{
 		parent::startup();
 
-		Tracy\Debugger::$productionMode = true;
+		Debugger::enable(Debugger::PRODUCTION);
 	}
 
 

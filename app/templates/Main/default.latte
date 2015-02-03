@@ -1,9 +1,12 @@
 {block cssp}main.cssp;angular.cssp;styles.cssp{/block}
 
-{block head}<link rel="stylesheet" href="{$basePath}/css/angular-chart.css">{/block}
+{block head}
+<link rel="stylesheet" href="{$basePath}/css/angular-chart.css">
+<link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'>
+{/block}
 
 {block scripts}
-<script>var isManager = {$isManager}; var currentUserId = {$userId};</script>
+<script>var isManager = {$isManager}; var currentUser = {$userId};</script>
 <script data-main="{$basePath}/js/main" src="{$basePath}/js/vendor/require.js"></script>
 {/block}
 

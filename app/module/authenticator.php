@@ -35,8 +35,17 @@ class Authenticator extends Nette\Object implements Security\IAuthenticator
 		if (!Security\Passwords::verify($password, $user->password))
 			throw new Nette\Security\AuthenticationException('Invalid password.', self::INVALID_CREDENTIAL);
 		
-		$roles = $this->acl->getEffectiveRoles($user->role);
+		$roles = $this->getEffectiveRoles($user->role);
 		
 		return new Security\Identity($user->id, $roles);
+	}
+	
+	public function getEffectiveRoles($role)
+	{
+		$roles = array($role => TRUE);
+		foreach($this->acl->getRoleParents($role) as $parent)
+			$roles += array_flip($this->getEffectiveRoles($parent));
+						
+		return array_keys($roles);
 	}
 }

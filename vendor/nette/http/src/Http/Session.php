@@ -63,6 +63,9 @@ class Session extends Nette\Object
 	/** @var IResponse */
 	private $response;
 
+	/** @var \SessionHandlerInterface */
+	private $handler;
+
 
 	public function __construct(IRequest $request, IResponse $response)
 	{
@@ -94,7 +97,7 @@ class Session extends Nette\Object
 			$error = $message;
 		});
 
-		$this->response->removeDuplicateCookies();
+		Helpers::removeDuplicateCookies();
 		if ($error) {
 			@session_write_close(); // this is needed
 			throw new Nette\InvalidStateException($error);
@@ -105,7 +108,7 @@ class Session extends Nette\Object
 		/* structure:
 			__NF: BrowserKey, Data, Meta, Time
 				DATA: section->variable = data
-				META: section->variable = Timestamp, Browser, Version
+				META: section->variable = Timestamp, Browser
 		*/
 		$nf = & $_SESSION['__NF'];
 
@@ -224,7 +227,7 @@ class Session extends Nette\Object
 			$backup = $_SESSION;
 			session_start();
 			$_SESSION = $backup;
-			$this->response->removeDuplicateCookies();
+			Helpers::removeDuplicateCookies();
 		}
 		$this->regenerated = TRUE;
 	}
@@ -382,7 +385,7 @@ class Session extends Nette\Object
 
 
 	/**
-	 * Configurates session environment.
+	 * Configures session environment.
 	 * @param  array
 	 * @return void
 	 */
@@ -431,12 +434,16 @@ class Session extends Nette\Object
 				$this->sendCookie();
 			}
 		}
+
+		if ($this->handler) {
+			session_set_save_handler($this->handler);
+		}
 	}
 
 
 	/**
 	 * Sets the amount of time allowed between requests before the session will be terminated.
-	 * @param  string|int|DateTime  time, value 0 means "until the browser is closed"
+	 * @param  string|int|\DateTime  time, value 0 means "until the browser is closed"
 	 * @return self
 	 */
 	public function setExpiration($time)
@@ -509,6 +516,7 @@ class Session extends Nette\Object
 			array($storage, 'open'), array($storage, 'close'), array($storage, 'read'),
 			array($storage, 'write'), array($storage, 'remove'), array($storage, 'clean')
 		);
+		return $this;
 	}
 
 
@@ -521,7 +529,8 @@ class Session extends Nette\Object
 		if (self::$started) {
 			throw new Nette\InvalidStateException('Unable to set handler when session has been started.');
 		}
-		session_set_save_handler($handler);
+		$this->handler = $handler;
+		return $this;
 	}
 
 
@@ -540,8 +549,8 @@ class Session extends Nette\Object
 			session_name(), session_id(),
 			$cookie['lifetime'] ? $cookie['lifetime'] + time() : 0,
 			$cookie['path'], $cookie['domain'], $cookie['secure'], $cookie['httponly']
-
-		)->setCookie(
+		);
+		$this->response->setCookie(
 			'nette-browser', $_SESSION['__NF']['B'],
 			Response::BROWSER, $cookie['path'], $cookie['domain']
 		);

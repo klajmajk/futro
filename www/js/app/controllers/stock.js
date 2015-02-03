@@ -1,5 +1,3 @@
-// http://jtblin.github.io/angular-chart.js/
-
 define([
 	'app/services'
 ], function () {
@@ -53,7 +51,6 @@ define([
 						if (this.form.$invalid)
 							return;
 
-						var my = this;
 						var quantity = this.keg.quantity;
 						this.keg.dateAdd = this.keg.currentDateTime();
 						this.keg.$save(
@@ -68,7 +65,7 @@ define([
 										newKeg.id -= quantity;
 										$scope.kegs.push(newKeg);
 									}
-									my.init();
+									$scope.kegAdd.init();
 								},
 								function (error) {
 									var message = 'Něco se pokazilo: <br /><br /><pre><strong>' +
@@ -119,12 +116,11 @@ define([
 						if (this.form.$invalid)
 							return;
 
-						var modal = this;
 						this.beer.$save(
 								function (beer) {
 									$scope.kegAdd.beers.push(beer);
 									$scope.kegAdd.keg.beer = beer.id;
-									modal.hide();
+									$scope.beerAdd.hide();
 								},
 								function (error) {
 
@@ -146,13 +142,12 @@ define([
 						if (this.form.$invalid)
 							return;
 
-						var modal = this;
 						this.brewery.$save(
 								function (brewery) {
 									$scope.breweries.push(brewery);
 									$scope.kegAdd.keg.brewery = brewery.id;
 									$scope.kegAdd.eventBrewerySelected();
-									modal.hide();
+									$scope.breweryAdd.hide();
 									$scope.beerAdd.show();
 								},
 								function (error) {

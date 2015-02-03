@@ -1,9 +1,36 @@
+<div class="panel panel-danger">
+	<div class="panel-heading">
+		Předvolby grafu
+	</div>
+	<div class="panel-body">
+		{control chartControlForm:inline, showLabels => TRUE}
+		<br />
+		<div class="row">
+			<label class="control-label col-xs-2">Analyzovat</label>
+			<div class="col-xs-8">
+				<label class="radio-inline" ng-repeat="type in chartControl.type">
+					<input type="radio" name="type" ng-model="chartControl.chart.type" value="{{ ::type.value}}">
+					{{ ::type.label}}
+				</label>
+			</div>
+			<div class="col-xs-2">
+				<button class="btn btn-success" ng-click="chartControl.plot()">Vykresli</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="panel panel-default">
-	<div bs-active-pane="tabs.activeTab" bs-tabs>
-		<div ng-repeat="tab in tabs" bs-pane
-			 title="{{ tab.title }}"
-			 compile="tab.content"
-			 ng-controller="tab.controller"></div>
+	<canvas class="chart-base" chart-type="chart.type" data="chart.data"
+			labels="chart.labels" legend="{{ chart.legend}}"></canvas> 
+</div>
+
+<div class="panel panel-danger"  ng-init="chart.getData('test')">
+	<div class="panel-heading">
+		Debug
+	</div>
+	<div class="panel-body">
+		{{ chartControl.chart|json }}
 	</div>
 </div>
 

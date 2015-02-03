@@ -9,7 +9,8 @@ use Nette,
 	Drahak\Restful\Converters,
 	Drahak\Restful\IResource,
 	Drahak\Restful\Application\UI\ResourcePresenter,
-	Drahak\Restful\Application\BadRequestException;
+	Drahak\Restful\Application\BadRequestException,
+	Tracy\Debugger;
 
 /**
  * CRUD resource presenter
@@ -36,12 +37,15 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	
 	/** @var array contains metadata that are appended to response */
 	protected $metadata = array();
+	
+	protected $timezone;
 
 	public function __construct(Database\Context $database)
 	{
 		parent::__construct();
 
 		$this->db = $database;
+		$this->timezone = new \DateTimeZone('Europe/Prague');
 	}
 
 
@@ -60,7 +64,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 
 			parent::startup();
 			
-			if ($action !== 'read')
+			if (strpos($action, 'read') === FALSE)
 				$this->inputData = $this->inputData ? : $this->getInputData();
 
 			if (($relation = $this->getParameter('relation')) !== NULL) {
@@ -217,8 +221,9 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	{
 		try {
 			unset($this->inputData['id']);
-			$this->inputData['date_add'] = new Nette\Utils\DateTime(
-					empty($this->inputData['date_add']) ? NULL : $this->inputData['date_add']);
+			$this->inputData['date_add'] = empty($this->inputData['date_add']) ?
+					new Nette\Utils\DateTime(NULL, new \DateTimeZone('Europe/Prague')) :
+					new Nette\Utils\DateTime($this->inputData['date_add']);
 			$this->harmonizeInputData();
 			$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();
@@ -315,5 +320,13 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 		return filter_var($id, FILTER_VALIDATE_INT, $options);
 	}
 
+	
+	protected function encapsulateInDateTime(& $date)
+	{
+		$date = new Nette\Utils\DateTime($date);
+		$date->setTimeZone($this->timezone);
+	}
+	
+	
 
 }

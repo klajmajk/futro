@@ -21,18 +21,6 @@
 			&.ng-leave-active
 				opacity: 0
 
-.wide
-	max-width: 600px
-
-.keg-info
-	.row
-		padding: 5px 20px
-	.progress
-		margin-bottom: 0px	
-	.consumption_table
-			max-height: 450px
-
-// angular strap collapse
 .collapse.am-collapse
 	animation-duration: .3s
 	animation-timing-function: ease
@@ -44,10 +32,18 @@
 	&.in-add
 		animation-name: expand
 
+.keg-info
+	.row
+		padding: 5px 20px
+	.progress
+		margin-bottom: 0px	
+	.consumption_table
+			max-height: 450px
+
 form[novalidate] .form-group
-	.help-block
+	p.help-block
 		display: none
-	&.has-error .help-block
+	&.has-error p.help-block
 		display: block
 
 .modal-footer

@@ -14,7 +14,23 @@ define(['angular', 'app/app'], function (angular, app) {
 						animation: 'am-fade-and-scale'
 					});
 				}])
+
+
+			.config(['$timepickerProvider', function ($timepickerProvider) {
+					angular.extend($timepickerProvider.defaults, {
+						timeFormat: 'HH:mm',
+						timeType: 'number'
+					});
+				}])
+
+			.config(['$datepickerProvider', function ($datepickerProvider) {
+				angular.extend($datepickerProvider.defaults, {
+					dateFormat: 'dd.MM.yyyy',
+					startWeek: 1
+				});
+			}])
+
 			.config(function (paginationTemplateProvider) {
-				paginationTemplateProvider.setPath('partials/dirpagination');
+				paginationTemplateProvider.setPath('html/dirpagination.html');
 			});
 });

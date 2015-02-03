@@ -1,14 +1,80 @@
-<div class="panel-group" bs-collapse>
-	<div ng-repeat="message in news track by message.id"
-		 class="panel panel-{{ ::message.user.context }}">
+<div class="panel-group" ng-model="activeTab" bs-collapse>
+	
+	{*
+	Panel with newsAdd form	
+	*}
+	<div class="panel panel-default">
 		<div class="panel-heading" bs-collapse-toggle>
+			<h2 class="panel-title" ng-show="!newsAdd.news.id">Přidat novou zprávu&nbsp;&nbsp;<i class="glyphicon glyphicon-plus"></i></h2>
+			<h2 class="panel-title" ng-show="newsAdd.news.id">Editování zprávy&nbsp;&nbsp;<i class="glyphicon glyphicon-pencil"></i></h2>
+		</div>
+		<div class="panel-collapse" bs-collapse-target>
+			<div class="panel-body">
+				<form name="newsAdd.form" novalidate>
+					<div class="form-group">
+						<label for="newsAdd_title">Titulek</label>
+						<input type="text" name="title" class="form-control" id="newsAdd_title" ng-model="newsAdd.news.title" required>
+						<span class="help-block" ng-show="newsAdd.form.title.$error.required && newsAdd.form.$submitted">Zadejte titulek pro novou zprávu.</span>
+					</div>
+					<div class="form-group">
+						<label bs-tooltip data-title="Pokud je nastaven termín konání/platnosti, po jeho uplynutí se zpráva přestane zobrazovat.">
+							<input type="checkbox" ng-model="newsAdd.news.setTerm">
+							Nastavit termín konání/platnosti zprávy.
+						</label>
+					</div>
+					<div class="form-group" ng-show="newsAdd.news.setTerm">
+						<div class="row">
+							<div class="col-xs-5">
+								<input type="text" class="form-control" placeholder="datum"
+									   ng-model="newsAdd.news.dateEnd" bs-datepicker data-min-date="today">
+							</div>
+							<div class="col-xs-3">								
+								<input type="text" class="form-control" placeholder="čas"
+									   ng-model="newsAdd.news.timeEnd"  bs-timepicker>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div text-angular ng-model="newsAdd.news.body" ta-toolbar="[
+								['h1', 'h2', 'p'],
+								['bold', 'italics', 'underline', 'clear'],
+								['ul', 'ol'],
+								['justifyLeft', 'justifyCenter'],
+								['insertImage', 'insertLink', 'insertVideo']
+							]"></div>
+						<span class="help-block" ng-bind="'Počet slov: ' + (newsAdd.news.body|wordcount) +
+									', písmen: ' + (newsAdd.news.body|charcount)"></span>
+					</div>
+					<label>
+						<input type="checkbox" ng-model="newsAdd.news.sendMail">
+						Poslat tuto zprávu všem kumpánům také emailem.
+					</label>
+					<button class="btn btn-primary pull-right" ng-click="newsAdd.save()">Uložit</button>
+					<button class="btn btn-warning pull-right" style="margin-right: 10px;" ng-show="newsAdd.news.id" ng-click="newsAdd.init()">Zrušit editaci</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	{*
+	List of all news in ng-repeat directive
+	*}
+	<div ng-repeat="message in news|orderBy:'-id' track by message.id"
+		 class="panel panel-{{ ::message.user.context}}">
+		<div class="panel-heading" bs-collapse-toggle>
+			<h2 class="panel-title pull-right" ng-bind="message.dateEnd|date:'EEEE, d. M. yyyy' + (isFullDay(message.dateEnd) ? '' : ' – HH:mm')"></h2>
 			<h2 class="panel-title" ng-bind="message.title"></h2>
 		</div>
 		<div class="panel-collapse" bs-collapse-target>
 			<div class="panel-body">
-				<p ng-bind-html="message.body|nl2br"></p>
-				<p class="text-right">&mdash; {{ ::message.user.name }}</p>
+				<div ta-bind ng-model="message.body"></div>
+				<p class="text-right">&mdash;
+					<span ng-bind="::message.user.name"></span>
+					<span ng-show="currentUser == message.user.id">,
+						<em class="anchor-like" ng-click="newsAdd.load(message, $index)">editovat</em>
+					</span>							
+				</p>
 			</div>
 		</div>
-	</div>
+	</div>	
 </div>

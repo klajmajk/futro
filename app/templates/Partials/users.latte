@@ -12,7 +12,8 @@
 		<tbody>
 			<tr ng-repeat="user in users track by user.id">
 				<td>
-					<span class="anchor-like" bs-modal data-template="modals/useredit">
+					<span class="anchor-like" bs-modal data-template="modals/useredit"
+						  ng-if="isManager || currentUser === user.id">
 						<i class="glyphicon glyphicon-pencil"></i>
 					</span>
 					<span ng-bind="user.name"></span>
@@ -20,19 +21,19 @@
 				<td ng-bind-html="user.getRoleLabel()"></td>
 				<td>
 					<span class="anchor-like" bs-modal data-template="modals/userconsumption">
-						<i class=" glyphicon glyphicon-tint"></i>
+						<i class="glyphicon glyphicon-tint"></i>
 					</span>
 					<span ng-bind="user.lastTap|date:'EEEE, d. M. y'"></span>
 				</td>
 				<td>
 					<span class="anchor-like" bs-modal data-template="modals/usercredit">
-						<i class="glyphicon glyphicon-search"></i>
+						<i class="glyphicon glyphicon-piggy-bank"></i>
 					</span>
 					<span ng-class="{
 						'text-danger': user.balance < 0,
 						'text-warning': user.balance < 500
 					}"
-						  ng-bind="user.balance|currency:'Kč ':2"></span>
+						  ng-bind="user.balance|currency"></span>
 				</td>
 				<td>
 					<a ng-href="mailto:{{ user.email}}">

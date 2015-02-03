@@ -2,7 +2,7 @@
 
 namespace App\Presenters;
 
-use Tracy,
+use Tracy\Debugger,
 	Nette\Utils\Html;
 
 /**
@@ -18,8 +18,9 @@ class PartialsPresenter extends BasePresenter
 	{
 		parent::startup();
 
-		Tracy\Debugger::$productionMode = true;
 		$this->layout = FALSE;
+		
+		Debugger::enable(Debugger::PRODUCTION);
 	}
 	
 
@@ -68,6 +69,27 @@ class PartialsPresenter extends BasePresenter
 				->setValidation('required', 'Prosím, zadejte cenu v Kč za 1 sud nových zásob.')
 				->setValidation('number', 'Jako cenu, prosím, uvádějte pouze cifry.');
 
+		return $form;
+	}
+	
+	protected function createComponentChartControlForm()
+	{
+		$form = new \App\Components\AngularForm('chartControl.form', 'chartControl.chart');
+		
+		$form->addField('select', 'data', 'Zobrazit', 'údaje...')
+				->setAttribute('ng-options', 'k as v.label for (k, v) in chartControl.data');
+		
+		$form->addField('select', 'labels', 'podle', 'srovnání...')
+				->setAttribute('ng-options', 'k as v.label for (k, v) in chartControl.labels');
+		
+		$form->addField('text', 'dateBegin', 'od', 'nevidím')
+				->setAttribute('bs-datepicker')
+				->setAttribute('size', 6);
+		
+		$form->addField('text', 'dateEnd', 'do', 'nevidím')
+				->setAttribute('bs-datepicker')
+				->setAttribute('size', 6);
+		
 		return $form;
 	}
 

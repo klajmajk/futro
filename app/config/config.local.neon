@@ -1,9 +1,11 @@
 parameters:
 
-
 nette:
 	database:
 		dsn: 'mysql:host=127.0.0.1;dbname=dev_futro'
 		user: futro
 		password: kumpan
 		options:
+	
+	application:
+		debugger: true

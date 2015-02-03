@@ -49,6 +49,12 @@ class KegPresenter extends BasePresenter
 		$this->input->field('state')->addRule(IValidator::IS_IN, 'Unsupported keg state.', self::$states);
 	}
 
+	public function validateCreateConsumption()
+	{
+		$tappedKegs = array_keys($this->db->table('keg')->where('state', self::$states[1])->fetchAll());
+		$this->input->field('keg')->addRule(IValidator::IS_IN, 'Given keg is not tapped or does not exist.', $tappedKegs);
+		$this->input->field('volume')->addRule(IValidator::INTEGER, 'Volume must be integer representing mililiters.');
+	}
 
 	public function actionRead($id)
 	{
@@ -120,14 +126,14 @@ class KegPresenter extends BasePresenter
 					} else {
 						$dataTap['keg'] = $id;
 						if ($keg->date_tap === NULL)
-							$data['date_tap'] = new Nette\Utils\DateTime(
+							$dataKeg['date_tap'] = new Nette\Utils\DateTime(
 									empty($this->inputData['date_tap']) ? NULL : $this->inputData['date_tap']);
 					}
 					break;
 				case 2:
-					$data['date_end'] = new Nette\Utils\DateTime(empty($this->inputData['date_end']) ?
+					$dataKeg['date_end'] = new Nette\Utils\DateTime(empty($this->inputData['date_end']) ?
 									NULL : $this->inputData['date_end']);
-					$this->finishAndAccount($keg, $data['date_end']);
+					$this->finishAndAccount($keg, $dataKeg['date_end']);
 				// there is no break; because following actions applies also for previous case
 				case 0:
 					if ($tap->keg != $id)
@@ -184,9 +190,7 @@ class KegPresenter extends BasePresenter
 
 
 	public function actionCreateConsumption($id)
-	{
-		$this->inputData['keg'] = $id;
-		
+	{		
 		parent::actionCreate();
 	}
 

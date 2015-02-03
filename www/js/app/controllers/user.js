@@ -1,5 +1,3 @@
-// http://jtblin.github.io/angular-chart.js/
-
 define([
 	'app/services'
 ], function () {
@@ -7,7 +5,7 @@ define([
 
 	return function (ctrl) {
 		ctrl.controller('UsersController', [
-			'$scope', '$q', 'API', '$popover',
+			'$scope', '$q', 'API',
 			function ($scope, $q, API) {
 				$scope.userEdit = {
 					user: {},
@@ -34,9 +32,12 @@ define([
 						if (this.password.new1)
 							changes = this.user.password = this.password;
 						
-						console.log(this.user);
-
-						return changes !== false ? this.user.$save().$promise : $q.when([]);
+						if (changes !== false) {
+							this.user.$save();
+							return true;
+						} else {
+							return false;
+						}
 					}
 				};
 				
@@ -51,12 +52,11 @@ define([
 						if (this.form.$invalid)
 							return;
 						
-						var my = this;
 						this.credit.dateAdd = this.credit.currentDateTime();
 						return this.credit.$save(
 								function(credit) {
-									my.user.credit.push(credit);
-									my.user.balance += credit.amount;
+									$scope.creditAdd.user.credit.push(credit);
+									$scope.creditAdd.user.balance += credit.amount;
 									return true;
 								},
 								function(error) {

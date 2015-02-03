@@ -11,7 +11,9 @@ define([
 	'app/services',
 	'app/directives',
 	'app/controllers',
-	'dirPagination'
+	'dirPagination',
+	'textAngular',
+	'angularCzech'
 ], function (angular) {
 	'use strict';
 	
@@ -25,6 +27,7 @@ define([
 		'kumpaniumFilters',
 		'kumpaniumServices',
 		'kumpaniumDirectives',
-		'angularUtils.directives.dirPagination'
+		'angularUtils.directives.dirPagination',
+		'textAngular'
 	]);
 });

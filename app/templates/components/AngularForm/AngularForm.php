@@ -72,12 +72,17 @@ class AngularForm extends Control
 	}
 
 
-	public function renderInline()
+	public function renderInline($showLabels = FALSE)
 	{
 		foreach ($this->formFields as $field)
 			if ($field instanceof AngularFormField) {
-				$field->label->class = array('sr-only');
-				$field->control->placeholder = $field->label->getText();
+				$label = $field->label->getText();
+				if ($showLabels === FALSE) {
+					$field->label->class = array('sr-only');
+					$field->control->placeholder = $label;
+				} else {
+					$field->label->setHtml('&nbsp;'.$label.'&nbsp;');
+				}
 			}
 
 		$this->render('inline');

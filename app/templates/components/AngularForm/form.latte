@@ -4,7 +4,7 @@
 			{$field}
 		{else}
 			<div class="form-group" ng-class="{
-				'has-error': {$form}.{$name}.$invalid && {$form}.$submitted,
+				'has-error': {$form}.{$name}.$invalid && {$form}.$validate,
 				'has-warning': {$form}.{$name}.$invalid && {$form}.{$name}.$dirty,
 				'has-success': {$form}.{$name}.$valid && {$form}.{$name}.$dirty,
 			}">		
@@ -12,8 +12,8 @@
 
 				{define additionals}
 					{foreach $field->extra as $extra}{$extra}{/foreach}
-						<p class="help-block" n:foreach="$field->validation as $problem => $message"
-						   ng-show="{$form}.{$name}.$error.{$problem} && {$form}.{$name}.$validate">{$message}</p>	
+					<p class="help-block" n:foreach="$field->validation as $problem => $message"
+					   ng-show="{$form}.{$name}.$error.{$problem} && {$form}.{$name}.$validate">{$message}</p>	
 				{/define}
 
 				{if $type === 'horizontal'}

@@ -1,6 +1,6 @@
 <div class="panel panel-default">
 	<div bs-active-pane="activeTab" ng-init="activeTab = 0" bs-tabs>
-		<div title="&Xi; Zásoby" bs-pane>
+		<div title="&Xi; Skladem" bs-pane>
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -81,7 +81,7 @@
 				<dir-pagination-controls on-page-change="finished.getPage(newPageNumber)"></dir-pagination-controls>
 			</div>
 		</div>
-		<div title="&plus; Přidat" bs-pane>
+		<div title="&plus; Přidat" bs-pane ng-if="isManager">
 			<div class="panel-body">
 				{control kegAddForm:horizontal}
 				<div id="new_stock_alert_container"></div>

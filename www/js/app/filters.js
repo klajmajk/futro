@@ -3,7 +3,7 @@ define([
 	'app/services'
 ], function (angular) {
 	'use strict';
-	
+
 	return angular.module('kumpaniumFilters', [])
 
 			.filter('label', function () {
@@ -122,16 +122,32 @@ define([
 					}
 				};
 			})
-			
-		.filter('capitalize', function () {
+
+			.filter('capitalize', function () {
 				return function (string) {
 					return string.charAt(0).toUpperCase() + string.slice(1);
 				};
 			})
-			
-		.filter('nl2br', function () {
+
+			.filter('nl2br', function () {
 				return function (string) {
 					return string.replace(/\n/g, '<br />');
+				};
+			})
+
+			.filter('charcount', function () {
+				return function (string) {
+					if (typeof string !== 'undefined')
+						string = string.replace(/(<[^>]+?>)/ig, '').replace(/(\&.+?\;)/g, ' ');
+					return string && string.length || 0;
+				};
+			})
+
+			.filter('wordcount', function () {
+				return function (string) {
+					if (typeof string !== 'undefined')
+						string = string.replace(/(<[^>]*?>)/ig, ' ').match(/\S+/g);							
+					return string && string.length || 0;
 				};
 			});
 });

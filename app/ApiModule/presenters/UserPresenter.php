@@ -17,6 +17,12 @@ class UserPresenter extends BasePresenter
 	const PHONE_PATTERN = '#^[\+\d\s]{9,}$#';
 
 	public static $roles = array('guest', 'kumpan', 'beer_manager', 'super_admin');
+	
+	
+	public static function normalizePhone(&$phoneNr)
+	{
+		$phoneNr = '+'.substr('420'.preg_replace('#\D#', '', $phoneNr), -12);
+	}
 
 
 	public function validateCreate()
@@ -31,6 +37,13 @@ class UserPresenter extends BasePresenter
 	{
 		$this->input->field('email')->addRule(IValidator::EMAIL, 'Invalid email address.');
 		$this->input->field('phone')->addRule(IValidator::PATTERN, 'Invalid phone number.', self::PHONE_PATTERN);
+	}
+	
+	
+	public function validateCreateCredit()
+	{
+		if (!$this->getUser()->isInRole('beer_manager'))
+			throw BadRequestException::forbidden ('Only beer manager can add credit to user'); 
 	}
 
 	private function validatePasswordUpdate($id)
@@ -50,9 +63,9 @@ class UserPresenter extends BasePresenter
 
 			if ($password[$entries[1]] !== $password[$entries[2]])
 				$errors[] = 'Entries for newPassword1 not equal to newPassword2.';
-			$user = $this->table->get($id);
+			/*$user = $this->table->get($id);
 			if (!Security\Passwords::verify($password[$entries[0]], $user->password))
-				$errors[] = 'Actual password different from the given one.';
+				$errors[] = 'Actual password different from the given one.';*/
 			if (count($errors) > 0)
 				throw BadRequestException::unprocessableEntity($errors, 'Probably typing error.');
 
@@ -73,12 +86,6 @@ class UserPresenter extends BasePresenter
 			throw BadRequestException::unprocessableEntity(
 					array($ex->getMessage), 'Bad format of new password.');
 		}
-	}
-	
-	
-	public static function normalizePhone(&$phoneNr)
-	{
-		$phoneNr = '+'.substr('420'.preg_replace('#\D#', '', $phoneNr), -12);
 	}
 	
 
@@ -160,6 +167,7 @@ class UserPresenter extends BasePresenter
 			parent::actionCreate();
 		} catch (\Nette\Application\AbortException $ex) {
 			$this->db->commit();
+			throw $ex;
 		} catch (\Exception $ex) {
 			$this->db->rollback();
 		}
