@@ -12,6 +12,8 @@ require.config({
 		angularStrap:		'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.min',
 		angularStrapTpl:	'//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.tpl.min',
 		angularChart:		'chart/angular-chart',
+		d3js:				'//d3js.org/d3.v3.min',
+		lineChart:			'chart/line-chart.min',
 		textAngular:		'//cdnjs.cloudflare.com/ajax/libs/textAngular/1.2.2/textAngular.min',
 		angularCzech:		'i18n/angular-locate_cs-cz'
 	},
@@ -24,6 +26,7 @@ require.config({
 		angularStrap: ['angular'],
 		angularStrapTpl: ['angularStrap'],
 		angularChart: ['angular','chart/chart.min'],
+		lineChart: ['angular', 'd3js'],
 		dirPagination: ['angular'],
 		textAngular: ['angular', 'rangy.min'],
 		angularCzech: ['angular']

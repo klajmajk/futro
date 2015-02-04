@@ -13,22 +13,29 @@ use Drahak\Restful\Application\UI\ResourcePresenter,
 class StatPresenter extends BasePresenter
 {
 	
-	private $labels;
+	private $series;
 	private $data;
 	private $dateBegin;
 	private $dateEnd;
 	
-	private $relations = array(
+	private $dataSources = array(
 		'consumption' => array(
-			'user' => 'user',
-			'beer' => 'keg.beer'
+			'dataCol' => 'volume',
+			'dateCol' => 'date_add',
+			'relations' => array(
+				'user' => 'user',
+				'beer' => 'keg.beer'
+			)
 		),
 		'credit' => array(
-			'user' => 'user',
-			'beer' => 'keg.beer'
+			'dataCol' => 'amount',
+			'dateCol' => 'date_add',
+			'relations' => array(
+				'user' => 'user',
+				'beer' => 'keg.beer'
+			)
 		)
-	);
-	
+	);	
 	
 	public function startup()
 	{
@@ -37,7 +44,7 @@ class StatPresenter extends BasePresenter
 			
 		ResourcePresenter::startup();
 		
-		$this->labels = $this->getParameter('labels');
+		$this->series = $this->getParameter('series');
 		$this->data = $this->getParameter('data');
 		$this->dateBegin = $this->getParameter('dateBegin');
 		$this->dateEnd = $this->getParameter('dateEnd');
@@ -47,56 +54,75 @@ class StatPresenter extends BasePresenter
 	public function actionRead($id)
 	{
 		$this->table = $this->db->table($this->data);
-		$relation = $this->relations[$this->data][$this->labels];
-		$select = $this->getSelectForData().' AS data,'.
-				$this->getSelectForLabels($relation).' AS labels';
-		$this->table->select($select)->group($relation);
-		
-		if ($this->dateBegin) {
-			$this->encapsulateInDateTime ($this->dateBegin);
-			$this->table->where('date_add >= ?', $this->dateBegin);
-		}
-		if ($this->dateEnd) {
-			$this->encapsulateInDateTime ($this->dateEnd);
-			$this->table->where('date_add <= ?', $this->dateEnd);
-		}
-				
+		$this->setDatabaseForData();
+		$this->setDatabaseForSeries();
+		$this->setDatabaseForDate();
+						
 		parent::actionRead(NULL);
 	}
 	
 	
-	private function getSelectForData()
+	private function setDatabaseForData()
 	{
+		$dataSource = $this->dataSources[$this->data];
+		$column = $this->data.'.'.$dataSource['dataCol'];
+		
 		switch($this->data) {
-			case 'consumption':
-				$select = 'SUM(consumption.volume)';
-				break;
 			case 'credit':
-				$select = 'FLOOR(ABS(SUM(credit.amount)))';
+				$select = "FLOOR(ABS(SUM($column)))";
 				$this->table->where('keg IS NOT NULL');
 				break;
+			case 'consumption':
+				$select = "0.001 * SUM($column)";
+				break;
+			default:
+				$select = "SUM($column)";
 		}
 		
-		return $select;
+		$this->table->select($select.' AS data');
 	}
 	
 	
-	private function getSelectForLabels($relation)
+	private function setDatabaseForSeries()
 	{
+		$dataSource = $this->dataSources[$this->data];
+		$relation = $dataSource['relations'][$this->series];
 		if ($relation)
 			$relation .= '.';
 		
-		switch($this->labels) {
-			case 'user':
-				$select = $relation.'name';
-				break;
+		switch($this->series) {
 			case 'beer':
 				$select = 'CONCAT('.$relation.'brewery.name, \' \', '.$relation.'name)';
-				$this->table->where('keg IS NOT NULL');
 				break;
+			default:
+				$select = $relation.'name';
 		}
 		
-		return $select;
+		$this->table->select($select.' AS series')->order($select);
+	}
+	
+	
+	private function setDatabaseForDate()
+	{
+		$dataSource = $this->dataSources[$this->data];
+		$groupBy = $dataSource['relations'][$this->series];
+		
+		if (isset($dataSource['dateCol'])) {
+			$column = $this->data.'.'.$dataSource['dateCol'];
+			$this->table->select("DATE_FORMAT($column, ?) AS date", '%Y-%m-%d')
+					->order($column);
+			$groupBy .= ", DATE($column)";
+			if ($this->dateBegin) {
+				$this->encapsulateInDateTime ($this->dateBegin);
+				$this->table->where($column.' >= ?', $this->dateBegin);
+			}
+			if ($this->dateEnd) {
+				$this->encapsulateInDateTime ($this->dateEnd);
+				$this->table->where($column.' <= ?', $this->dateEnd);
+			}
+		}
+		
+		$this->table->group($groupBy);
 	}
 	
 }

@@ -74,13 +74,16 @@ class PartialsPresenter extends BasePresenter
 	
 	protected function createComponentChartControlForm()
 	{
-		$form = new \App\Components\AngularForm('chartControl.form', 'chartControl.chart');
+		$object = 'chartControl.';
+		$form = new \App\Components\AngularForm($object.'form', $object.'chart');
 		
 		$form->addField('select', 'data', 'Zobrazit', 'údaje...')
-				->setAttribute('ng-options', 'k as v.label for (k, v) in chartControl.data');
+				->setAttribute('bs-select')
+				->setAttribute('ng-options', 'item.value as item.label for item in chartControl.data');
 		
-		$form->addField('select', 'labels', 'podle', 'srovnání...')
-				->setAttribute('ng-options', 'k as v.label for (k, v) in chartControl.labels');
+		$form->addField('select', 'series', 'podle', 'srovnání...')
+				->setAttribute('bs-select')
+				->setAttribute('ng-options', 'item.value as item.label for item in chartControl.series');
 		
 		$form->addField('text', 'dateBegin', 'od', 'nevidím')
 				->setAttribute('bs-datepicker')
@@ -89,6 +92,8 @@ class PartialsPresenter extends BasePresenter
 		$form->addField('text', 'dateEnd', 'do', 'nevidím')
 				->setAttribute('bs-datepicker')
 				->setAttribute('size', 6);
+		
+		$form->addButton('button', 'Vykresli', $object.'load()', 'success');
 		
 		return $form;
 	}

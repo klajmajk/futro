@@ -15,10 +15,10 @@ define([
 
 	var serviceModule = angular.module('kumpaniumServices', ['ngResource']);
 
+	utils(serviceModule);
 	api(serviceModule);
 	keg(serviceModule);
 	user(serviceModule);
-	utils(serviceModule);
 	
 	return serviceModule;
 });
