@@ -38,7 +38,8 @@ class NewsPresenter extends BasePresenter
 	
 	public function actionUpdate($id)
 	{
-		$this->fixDate();
+		if (!empty($this->inputData['date_end']))
+			$this->encapsulateInDateTime($this->inputData['date_end']);
 		
 		parent::actionUpdate($id);
 	}

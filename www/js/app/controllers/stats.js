@@ -108,7 +108,7 @@ define([
 										if (typeof data[i] === 'undefined')
 											data.push([]);
 										previous = data[i][data[i].length - 1] || 0;
-										data[i].push(previous + (temp[date][serie] || 0));
+										data[i].push(+(previous + (temp[date][serie] || 0)).toFixed(2));
 									}
 								}
 								break;
