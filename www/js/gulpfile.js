@@ -1,17 +1,20 @@
 var gulp = require('gulp'),
-    jshint = require('gulp-jshint'),
-    uglify = require('gulp-uglify'),
-    imagemin = require('gulp-imagemin'),
-    rename = require('gulp-rename'),
-    concat = require('gulp-concat'),
-    notify = require('gulp-notify'),
-    cache = require('gulp-cache'),
-    livereload = require('gulp-livereload'),
-    del = require('del'),
+	jshint = require('gulp-jshint'),
+	uglify = require('gulp-uglify'),
+	imagemin = require('gulp-imagemin'),
+	rename = require('gulp-rename'),
+	concat = require('gulp-concat'),
+	notify = require('gulp-notify'),
+	cache = require('gulp-cache'),
+	livereload = require('gulp-livereload'),
+	del = require('del'),
 	ngAnotate = require('gulp-ng-annotate');
-	
-gulp.task('scripts', function() {
-	return gulp.src('app/**/*.js')
+
+gulp.task('scripts', function () {
+	return gulp.src([
+		'bower_components/angular-utils-pagination/dirPagination.js',
+		'app/**/*.js'
+	])
 		.pipe(jshint())
 		.pipe(jshint.reporter('default'))
 		.pipe(concat('main.js'))

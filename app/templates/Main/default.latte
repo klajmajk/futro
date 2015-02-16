@@ -29,10 +29,10 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/textAngular/1.2.2/textAngular.min.js"></script>
 <script src="{$basePathLib}/Chart.js/Chart.min.js"></script>
 <script src="{$basePathLib}/angular-chart.js/dist/angular-chart.js"></script>
-<script src="{$basePathLib}/angular-utils-pagination/dirPagination.js"></script>
 {* App *}
 <script src="{$basePathJS}/app.js"></script>
 {if $development}
+	<script src="{$basePathLib}/angular-utils-pagination/dirPagination.js"></script>
 	{var $basePathApp = $basePathJS.'/app'}
 	<script src="{$basePathApp}/routes.js"></script>
 	<script src="{$basePathApp}/config.js"></script>
@@ -62,7 +62,6 @@
 	</a>
 	<div class="site-wrapper-inner">
 		<div class="cover-container">
-
 			<div class="masthead clearfix">
 				<div class="inner text-center">
 					<h3 class="masthead-brand">Kumpánium</h3>
@@ -74,7 +73,6 @@
 					</ul>
 				</div>
 			</div>
-
 			<div class="cover">
 				<div ng-view></div>				
 			</div>
