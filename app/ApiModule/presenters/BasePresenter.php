@@ -3,14 +3,14 @@
 namespace App\ApiModule\Presenters;
 
 use Nette,
+	Nette\Utils\DateTime,
 	Nette\Database,
 	Nette\Database\Table\ActiveRow,
-	Drahak\Restful,
-	Drahak\Restful\Converters,
+	Drahak\Restful\Utils\Strings,
+	Drahak\Restful\Converters\SnakeCaseConverter,
 	Drahak\Restful\IResource,
 	Drahak\Restful\Application\UI\ResourcePresenter,
-	Drahak\Restful\Application\BadRequestException,
-	Tracy\Debugger;
+	Drahak\Restful\Application\BadRequestException;
 
 /**
  * CRUD resource presenter
@@ -87,7 +87,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 		$name = parent::getName();
 		if (($pos = strpos($name, ':')))
 				$name = substr($name, $pos + 1);
-		return Restful\Utils\Strings::toSnakeCase($name);
+		return Strings::toSnakeCase($name);
 	}
 
 
@@ -221,9 +221,9 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	{
 		try {
 			unset($this->inputData['id']);
-			$this->inputData['date_add'] = empty($this->inputData['date_add']) ?
-					new Nette\Utils\DateTime(NULL, new \DateTimeZone('Europe/Prague')) :
-					new Nette\Utils\DateTime($this->inputData['date_add']);
+			if (!isset($this->inputData['date_add']))
+				$this->inputData['date_add'] = NULL;
+			$this->encapsulateInDateTime($this->inputData['date_add']);
 			$this->harmonizeInputData();
 			$row = $this->table->insert($this->inputData);
 			$this->resource = $row->toArray();
@@ -276,7 +276,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	 */
 	protected function getInputData()
 	{
-		$converter = new Converters\SnakeCaseConverter();
+		$converter = new SnakeCaseConverter();
 		$data = $this->getInput()->getData();
 
 		return $converter->convert($data);
@@ -323,7 +323,7 @@ class BasePresenter extends ResourcePresenter // SecuredResourcePresenter
 	
 	protected function encapsulateInDateTime(& $date)
 	{
-		$date = new Nette\Utils\DateTime($date);
+		$date = new DateTime($date);
 		$date->setTimeZone($this->timezone);
 	}
 	

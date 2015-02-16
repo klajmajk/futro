@@ -3,7 +3,7 @@
 namespace App\Presenters;
 
 use Nette,
-	App\Model;
+	Tracy\Debugger;
 
 
 /**
@@ -32,5 +32,6 @@ class MainPresenter extends BasePresenter
 	{
 		$this->template->isManager = $this->getUser()->isInRole('beer_manager');
 		$this->template->userId = $this->getUser()->getId();
+		$this->template->development = Debugger::isEnabled();
 	}
 }

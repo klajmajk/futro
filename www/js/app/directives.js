@@ -1,27 +1,8 @@
-define([
-	'angular',
-	'app/services'
-], function (angular) {
-	'use strict';
-	
-	return angular.module('kumpaniumDirectives', ['kumpaniumServices'])
-	
-			.directive('setFocusIf', function ($timeout) {
-				return {
-					scope: {trigger: '@setFocusIf'},
-					link: function (scope, element) {
-						scope.$watch('trigger', function (value) {
-							if (value === "true") {
-								$timeout(function () {
-									element[0].focus();
-								});
-							}
-						});
-					}
-				};
-			})
+angular.module('kumpaniumDirectives')
 
-			.directive('cacheTemplate', function ($templateCache) {
+		.directive('cacheTemplate', [
+			'$templateCache',
+			function ($templateCache) {
 				return {
 					restrict: 'A',
 					priority: 100,
@@ -35,9 +16,11 @@ define([
 						element.remove();
 					}
 				};
-			})
+			}])
 
-			.directive('compile', function ($compile) {
+		.directive('compile', [
+			'$compile',
+			function ($compile) {
 				return {
 					restrict: 'A',
 					link: function (scope, element, attrs) {
@@ -53,95 +36,94 @@ define([
 						);
 					}
 				};
-			})
+			}])
 
-			.directive('showErrors', function () {
-				return {
-					restrict: 'A',
-					require: 'form',
-					link: function (scope, el, attrs, formCtrl) {
-						var formGroups = el[0].getElementsByClassName('form-group'),
-								i = formGroups.length,
-								fields = {};
+		.directive('showErrors', function () {
+			return {
+				restrict: 'A',
+				require: 'form',
+				link: function (scope, el, attrs, ctrl) {
+					var formGroups = el[0].getElementsByClassName('form-group'),
+							i = formGroups.length,
+							fields = {};
 
-						if (i === 0)
-							return;
-						
-						while (i--) {
-							var input = formGroups[i].querySelector('[name]');
-							if (!input)
-								continue;
-							var inputElem = angular.element(input);
-							fields[inputElem.attr('name')] = angular.element(formGroups[i]);
-							inputElem.bind('change', function () {
-								checkValidity(this.getAttribute('name'));
-							});
-						}
+					if (i === 0)
+						return;
 
-						scope.$on('show-errors-check-validity', function (event, form) {
-							for (var field in form)
-								if (form.hasOwnProperty(field) && fields.hasOwnProperty(field))
-									checkValidity(field);
+					while (i--) {
+						var input = formGroups[i].querySelector('[name]');
+						if (!input)
+							continue;
+						var inputElem = angular.element(input);
+						fields[inputElem.attr('name')] = angular.element(formGroups[i]);
+						inputElem.bind('change', function () {
+							checkValidity(this.getAttribute('name'));
 						});
-
-						function checkValidity(name) {
-							fields[name].toggleClass('has-error', formCtrl[name].$invalid);
-						}
 					}
-				};
-			})
 
-			.directive('validPhone', function () {
-				return {
-					require: 'ngModel',
-					link: function (scope, el, attrs, ctrl) {
-						ctrl.$validators.phone = function (modelValue, viewValue) {
-							if (ctrl.$isEmpty(modelValue))
-								return true;
-							if (isNaN(modelValue))
-								return false;
-							var numberLength = modelValue.replace(/(^00)|\D/g, '').length;
-							if (numberLength > 12 || numberLength < 9)
-								return false;
+					scope.$on('show-errors-check-validity', function (event, form) {
+						for (var field in form)
+							if (form.hasOwnProperty(field) && fields.hasOwnProperty(field))
+								checkValidity(field);
+					});
+
+					function checkValidity(name) {
+						fields[name].toggleClass('has-error', ctrl[name].$invalid);
+					}
+				}
+			};
+		})
+
+		.directive('validPhone', function () {
+			return {
+				require: 'ngModel',
+				link: function (scope, el, attrs, ctrl) {
+					ctrl.$validators.phone = function (modelValue, viewValue) {
+						if (ctrl.$isEmpty(modelValue))
 							return true;
-						};
-					}
-				};
-			})
+						if (isNaN(modelValue))
+							return false;
+						var numberLength = modelValue.replace(/(^00)|\D/g, '').length;
+						if (numberLength > 12 || numberLength < 9)
+							return false;
+						return true;
+					};
+				}
+			};
+		})
 
-			// TODO: not used, just copied from https://docs.angularjs.org/guide/forms
-			.directive('usernameExists', function () {
-				return {
-					require: 'ngModel',
-					link: function (scope, el, attrs, ctrl) {
-						var usernames = ['Jim', 'John', 'Jill', 'Jackie'];
+		// TODO: not used, just copied from https://docs.angularjs.org/guide/forms
+		.directive('usernameExists', function () {
+			return {
+				require: 'ngModel',
+				link: function (scope, el, attrs, ctrl) {
+					var usernames = ['Jim', 'John', 'Jill', 'Jackie'];
 
-						ctrl.$asyncValidators.username = function (modelValue, viewValue) {
+					ctrl.$asyncValidators.username = function (modelValue, viewValue) {
 
-							if (ctrl.$isEmpty(modelValue)) {
-								// consider empty model valid
-								return $q.when();
+						if (ctrl.$isEmpty(modelValue)) {
+							// consider empty model valid
+							return $q.when();
+						}
+
+						var def = $q.defer();
+
+						$timeout(function () {
+							// Mock a delayed response
+							if (usernames.indexOf(modelValue) === -1) {
+								// The username is available
+								def.resolve();
+							} else {
+								def.reject();
 							}
 
-							var def = $q.defer();
+						}, 2000);
 
-							$timeout(function () {
-								// Mock a delayed response
-								if (usernames.indexOf(modelValue) === -1) {
-									// The username is available
-									def.resolve();
-								} else {
-									def.reject();
-								}
-
-							}, 2000);
-
-							return def.promise;
-						};
-					}
-				};
-			});
-});
+						return def.promise;
+					};
+				}
+			};
+		});
 
 
 

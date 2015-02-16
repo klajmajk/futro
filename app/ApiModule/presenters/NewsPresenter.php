@@ -2,9 +2,10 @@
 
 namespace App\ApiModule\Presenters;
 
-use Nette,
-	Nette\Mail,
-	Drahak\Restful\IResource,
+use Nette,	
+	Nette\Mail\Message,
+	Nette\Mail\SendmailMailer,
+	Nette\Utils\DateTime,
 	Drahak\Restful\Validation\IValidator;
 
 /**
@@ -59,10 +60,10 @@ class NewsPresenter extends BasePresenter
 		$users = $this->db->table('user')->fetchAll();
 		$sender = $users[$this->user->getId()];
 		$subject = $this->inputData['title'];
-		if ($this->inputData['date_end'] instanceof \Nette\Utils\DateTime)
+		if ($this->inputData['date_end'] instanceof DateTime)
 			$subject .= ' ['.$this->inputData['date_end']->format('d.m.Y H:i:s').']';
 		
-		$mail = new Mail\Message;
+		$mail = new Message;
 		$mail->setFrom($sender['email'], $sender['name'])
 				->setSubject($subject)
 				->setHTMLBody($this->inputData['body']);
@@ -70,7 +71,7 @@ class NewsPresenter extends BasePresenter
 		  $mail->addTo($user['email'], $user['name']); */
 		$mail->addTo('novotnyw@gmail.com', 'Václav Novotný');
 
-		$mailer = new Mail\SendmailMailer;
+		$mailer = new SendmailMailer;
 		$mailer->send($mail);
 	}
 
