@@ -30,5 +30,5 @@ angular.module('kumpanium')
 			}])
 
 		.config(['paginationTemplateProvider', function (paginationTemplateProvider) {
-			paginationTemplateProvider.setPath('html/dirpagination.html');
+			paginationTemplateProvider.setPath('js/bower_components/angular-utils-pagination/dirPagination.tpl.html');
 		}]);

@@ -1,4 +1,7 @@
 /nbproject/private/
 /vendor
 /tests
+/temp
 /log
+/www/js/bower_components
+/www/js/node_modules

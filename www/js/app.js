@@ -3,12 +3,12 @@ angular.module('kumpanium', [
 	'ngRoute',
 	'ngSanitize',
 	'mgcrea.ngStrap',
-	'chart.js',
 	'kumpaniumControllers',
 	'kumpaniumFilters',
 	'kumpaniumServices',
 	'kumpaniumDirectives',
 	'angularUtils.directives.dirPagination',
+	'chart.js',
 	'textAngular'
 ]);
 
