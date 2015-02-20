@@ -31,7 +31,8 @@
 					</span>
 					<span ng-class="{
 						'text-danger': user.balance < 0,
-						'text-warning': user.balance < 500
+						'text-warning': user.balance < 300,						
+						'text-success': user.balance > 800
 					}"
 						  ng-bind="user.balance|currency"></span>
 				</td>

@@ -8,12 +8,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-
 	<title>{ifset #title}{include title|striptags} | {/ifset}Kumpanium</title>
 	
+	<link rel="shortcut icon" href="{$basePath}/favicon.ico">	
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	{ifset #cssp}<link rel="stylesheet" href="{$basePath}/css/turbine/css.php?files={include cssp}" />{/ifset}
-	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	{block head}{/block}
 </head>
 

@@ -1,0 +1,29 @@
+{
+  "name": "kumpani",
+  "version": "0.0.1",
+  "homepage": "https://github.com/klajmajk/futro",
+  "authors": [
+    "Vaclav Novotny <novotny.v@clav.cz>"
+  ],
+  "description": "beer management",
+  "main": "main.js",
+  "keywords": [
+    "beer",
+    "kumpani",
+    "futro"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-chart.js": "~0.5.1",
+    "angular-utils-pagination": "~0.5.0",
+    "textAngular": "~1.3.7"
+  }
+}

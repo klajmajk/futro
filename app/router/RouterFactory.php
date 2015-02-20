@@ -5,7 +5,6 @@ namespace App;
 use Nette,
 	Nette\Application\Routers\RouteList,
 	Nette\Application\Routers\Route,
-	Nette\Application\Routers\SimpleRouter,
 	Drahak\Restful\Application\Routes\CrudRoute;
 
 
@@ -22,7 +21,7 @@ class RouterFactory
 	{
 		$router = new RouteList();	
 		$router[] = new CrudRoute('futro/<presenter>/[<id [0-9]+>/[<relation>[/<relationId [0-9]+>]]]', array(
-		    'module' => 'Api'
+		    'module' => 'Futro'
 		));
 		$router[] = new Route('<presenter>/<action>[/<id>]', 'Main:default');
 		return $router;

@@ -15,7 +15,7 @@ html, body
 
 // Extra markup and styles for table-esque vertical and horizontal centering
 .site-wrapper
-	background: no-repeat center center  url(../../images/atmosphere.jpg)
+	background: no-repeat center center  url(../../assets/img/atmosphere.jpg)
 	extends: "?cover"
 	display: table
 	width: 100%

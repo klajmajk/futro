@@ -1,15 +1,15 @@
+{var $basePathJS = $basePath.'/js'}
+{var $basePathLib = $basePathJS.'/bower_components'}
+
 {block cssp}main.cssp;angular.cssp;styles.cssp{/block}
 
 {block head}
 <link rel="stylesheet" href="{$basePath}/css/angular-chart.css">
-<link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'>
+<link rel="stylesheet prefetch" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
 {/block}
 
 {block scripts}
 <script>var isManager = {$isManager}; var currentUser = {$userId};</script>
-{* <script data-main="{$basePath}/js/dist/main" src="{$basePath}/js/lib/require.js"></script> *}
-
-
 {* Angular *}
 {var $angularCDN = '//ajax.googleapis.com/ajax/libs/angularjs/'}
 {var $angularVersion = '1.3.13'}
@@ -23,42 +23,14 @@
 <script src="{$angularStrapCDN}{$angularStrapVersion}/angular-strap.min.js"></script>
 <script src="{$angularStrapCDN}{$angularStrapVersion}/angular-strap.tpl.min.js"></script>
 {* Other libraries *}
-{var $basePathJS = $basePath.'/js'}
-{var $basePathLib = $basePathJS.'/bower_components'}
-<script src="{$basePathLib}/textAngular/dist/textAngular-rangy.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/textAngular/1.2.2/textAngular.min.js"></script>
-<script src="{$basePathLib}/Chart.js/Chart.min.js"></script>
-<script src="{$basePathLib}/angular-chart.js/dist/angular-chart.js"></script>
-{* App *}
-<script src="{$basePathJS}/app.js"></script>
-{if $development}
-	<script src="{$basePathLib}/angular-utils-pagination/dirPagination.js"></script>
-	{var $basePathApp = $basePathJS.'/app'}
-	<script src="{$basePathApp}/routes.js"></script>
-	<script src="{$basePathApp}/config.js"></script>
-	<script src="{$basePathApp}/filters.js"></script>
-	<script src="{$basePathApp}/directives.js"></script>
-	<script src="{$basePathApp}/angular-locate_cs-cz.js"></script>
-	{var $basePathControllers = $basePathApp.'/controllers'}
-	<script src="{$basePathControllers}/root.js"></script>
-	<script src="{$basePathControllers}/news.js"></script>
-	<script src="{$basePathControllers}/stats.js"></script>
-	<script src="{$basePathControllers}/stock.js"></script>
-	<script src="{$basePathControllers}/user.js"></script>
-	{var $basePathServices = $basePathApp.'/services'}
-	<script src="{$basePathServices}/utils.js"></script>
-	<script src="{$basePathServices}/api.js"></script>
-	<script src="{$basePathServices}/user.js"></script>
-	<script src="{$basePathServices}/keg.js"></script>	
-{else}
-	<script src="{$basePathJS}/dist/main.min.js"></script>
-{/if}
+<script src="{$basePath}/assets/js/main-min.js"></script>
 {/block}
 
 {block content}
 <div class="site-wrapper">
 	<a id="exit" n:href="Sign:out">
-		<img src="{$basePath}/images/exit.png" alt="EXIT" width="100%">
+		<img src="{$basePath}/assets/img/exit.png" alt="EXIT" width="100%">
 	</a>
 	<div class="site-wrapper-inner">
 		<div class="cover-container">
@@ -76,7 +48,6 @@
 			<div class="cover">
 				<div ng-view></div>				
 			</div>
-
 		</div>
 	</div>
 </div>

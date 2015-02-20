@@ -1,7 +1,7 @@
 /nbproject/private/
+/app/config/config.local.neon
 /vendor
-/tests
 /temp
 /log
-/www/js/bower_components
-/www/js/node_modules
+/bower_components
+/node_modules
