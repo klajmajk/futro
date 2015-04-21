@@ -2,7 +2,8 @@
 
 namespace App\FutroModule\Presenters;
 
-use Drahak\Restful\Application\UI\ResourcePresenter,
+use Nette\Utils\DateTime,
+	Drahak\Restful\Application\UI\ResourcePresenter,
 	Drahak\Restful\Application\BadRequestException;
 
 /**
@@ -12,6 +13,9 @@ use Drahak\Restful\Application\UI\ResourcePresenter,
  */
 class StatPresenter extends BasePresenter
 {
+	
+	const MAX_DAYS_TO_NOT_OPTIMIZE = 30;
+	const MAX_DATES_WHEN_OPTIMIZE = 9;
 	
 	private $series;
 	private $data;
@@ -55,8 +59,8 @@ class StatPresenter extends BasePresenter
 	{
 		$this->table = $this->db->table($this->data);
 		$this->setDatabaseForData();
-		$this->setDatabaseForSeries();
 		$this->setDatabaseForDate();
+		$this->setDatabaseForSeries();
 						
 		parent::actionRead(NULL);
 	}
@@ -107,22 +111,49 @@ class StatPresenter extends BasePresenter
 		$dataSource = $this->dataSources[$this->data];
 		$groupBy = $dataSource['relations'][$this->series];
 		
-		if (isset($dataSource['dateCol'])) {
-			$column = $this->data.'.'.$dataSource['dateCol'];
-			$this->table->select("DATE_FORMAT($column, ?) AS date", '%Y-%m-%d')
-					->order($column);
-			$groupBy .= ", DATE($column)";
+		if (isset($dataSource['dateCol'])) {			
+			$groupBy .= ", date";
+			$dateCol = $this->data.'.'.$dataSource['dateCol'];
+			$oldestRecord = $this->db->table($this->data)
+						->order($dateCol)->limit(1)->fetch()
+						->$dataSource['dateCol'];
+			$oldestTimestamp = $oldestRecord->format('U');
+			
 			if ($this->dateBegin) {
 				$this->encapsulateInDateTime ($this->dateBegin);
-				$this->table->where($column.' >= ?', $this->dateBegin);
+				$this->table->where($dateCol.' >= ?', $this->dateBegin);
+				$dateBegin = $this->dateBegin->format('U') < $oldestTimestamp ?
+						$oldestRecord : $this->dateBegin;
+			} else {
+				$dateBegin = $oldestRecord;
 			}
+			
 			if ($this->dateEnd) {
 				$this->encapsulateInDateTime ($this->dateEnd);
-				$this->table->where($column.' <= ?', $this->dateEnd);
+				$this->table->where($dateCol.' <= ?', $this->dateEnd);
+				$dateEnd = $this->dateEnd;
+			} else {
+				$newestRecord = $this->db->table($this->data)
+						->order($dateCol.' DESC')->limit(1)->fetch();
+				$dateEnd = $newestRecord->$dataSource['dateCol'];
 			}
+			
+			$diffDays = $dateBegin->diff($dateEnd)->days;
+			if ($diffDays > static::MAX_DAYS_TO_NOT_OPTIMIZE) {
+				$interval = $diffDays / (static::MAX_DATES_WHEN_OPTIMIZE - 1) * 86400;
+				$dateCol = "FROM_UNIXTIME("
+						. "(UNIX_TIMESTAMP($dateCol) - $oldestTimestamp)"
+						. " DIV $interval * $interval + $oldestTimestamp)";
+			}
+			
+			$this->table
+				->select("DATE_FORMAT($dateCol, ?) AS date", '%Y-%m-%d')
+				->order($dateCol);
 		}
 		
 		$this->table->group($groupBy);
 	}
+	
+	
 	
 }

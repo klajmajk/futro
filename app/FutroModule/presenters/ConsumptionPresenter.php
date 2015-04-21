@@ -4,7 +4,8 @@ namespace App\FutroModule\Presenters;
 
 use Nette,
 	Drahak\Restful\IResource,
-	Drahak\Restful\Validation\IValidator;
+	Drahak\Restful\Validation\IValidator,
+	Nette\Database\UniqueConstraintViolationException;
 
 /**
  * CRUD resource presenter
@@ -25,25 +26,39 @@ class ConsumptionPresenter extends BasePresenter
 
 	public function actionCreate()
 	{
-		if (array_values($this->inputData) !== $this->inputData)
-			parent::actionCreate();
-
-		// this code cannot be reached if validateCreate is used
-		$data = $this->inputData;
-		$i = count($data);
-		try {
-			while ($i--) {
-				$this->inputData = $data[$i];
-				unset($this->inputData['id']);
-				$this->inputData['date_add'] = new Nette\Utils\DateTime(
-						empty($this->inputData['date_add']) ? NULL : $this->inputData['date_add']);
-				$this->harmonizeInputData(isset($row) ? $row : NULL);
-				$row = $this->table->insert($this->inputData);
+		$store = function($data, $row = NULL) {
+			try {
+				unset($data['id']);
+				if (!isset($data['date_add']))
+					$data['date_add'] = NULL;
+				$this->encapsulateInDateTime($data['date_add']);
+				$this->harmonizeInputData($row);
+				return $this->table->insert($data);
+			} catch (UniqueConstraintViolationException $ex) {
+				$record = $this->table
+						->where('date_add', $data['date_add'])
+						->where('keg', $data['keg'])
+						->limit(1)
+						->fetchAll();
+				return reset($record);
+			} catch (\Exception $ex) {
+				$this->sendErrorResource($ex);
 			}
+		};
+		
+		if (array_values($this->inputData) !== $this->inputData) { // is assoc_array == not multiple records per single request
+			$row = $store($this->inputData);
 			$this->resource = $row->toArray();
-		} catch (\Exception $ex) {
-			$this->sendErrorResource($ex);
+		} else {
+			$row = NULL;
+			$i = count($this->inputData);
+			while ($i--) {
+				$row = $store($this->inputData[$i], $row);
+				if (!$i)
+					$this->resource = $row->toArray();
+			}
 		}
+		
 		$this->sendResource(IResource::JSON);
 	}
 	
