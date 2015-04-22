@@ -59,6 +59,7 @@ class NewsPresenter extends BasePresenter
 	{
 		$users = $this->db->table('user')->fetchAll();
 		$sender = $users[$this->user->getId()];
+		$senderMail = substr($sender, 0, strpos($sender, '@')).'@kumpani.net';
 		$subject = $this->inputData['title'];
 		if ($this->inputData['date_end'] instanceof DateTime)
 			$subject .= ' ['.$this->inputData['date_end']->format('d.m.Y H:i:s').']';

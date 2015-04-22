@@ -60,7 +60,8 @@ class KegPresenter extends BasePresenter
 		if (strcasecmp($this->getParameter('state'), self::$states[2]) === 0)
 			$this->table
 					->select('keg.*, SUM(:consumption.volume) AS total_consumption')
-					->group('keg.id');
+					->group('keg.id')
+					->order('date_end DESC');
 
 		parent::actionRead($id);
 	}
@@ -70,9 +71,11 @@ class KegPresenter extends BasePresenter
 	{
 		try {
 			$this->inputData['state'] = self::$states[0];
-			$this->inputData['date_add'] = new Nette\Utils\DateTime(
-					empty($this->inputData['date_add']) ? NULL : $this->inputData['date_add']);
-			$quantity = empty($this->inputData['quantity']) ? 1 : (int) $this->inputData['quantity'];
+			if (empty($this->inputData['date_add']))
+				$this->inputData['date_add'] = NULL;
+			$this->encapsulateInDateTime($this->inputData['date_add']);
+			$quantity = empty($this->inputData['quantity']) ?
+					1 : (int) $this->inputData['quantity'];
 			$this->harmonizeInputData();
 			while ($quantity--)
 				$row = $this->table->insert($this->inputData);

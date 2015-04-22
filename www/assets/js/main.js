@@ -656,11 +656,13 @@ angular.module('kumpaniumControllers').controller('NewsController', [
 		$scope.newsAdd = {
 			init: function () {
 				this.news = new News();
-				this.original = this.index = {};
+				this.original = null;
+				this.index = null;
 			},
 			save: function () {
 				var news = this.news,
-						original = this.original;
+					original = this.original,
+					currentIndex = this.index;
 
 				this.form.$setSubmitted();
 				if (this.form.$invalid)
@@ -680,7 +682,7 @@ angular.module('kumpaniumControllers').controller('NewsController', [
 							addAuthor(news);
 							if (original) {
 								angular.copy(news, original);
-								$scope.activeTab = this.index;
+								$scope.activeTab = currentIndex;
 							} else {
 								$scope.news.push(news);
 								$scope.activeTab = 1;
