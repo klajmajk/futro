@@ -1,0 +1,67 @@
+{block title}
+Pohyb na účtu &ndash; {{ ::user.name}}
+{/block}
+
+{block header}
+{include parent}
+<p ng-init="user.getCredit()">
+	Celkem vloženo / odečteno / rozdíl:
+	<span class="text-success" ng-bind="user.credit.length && user.credit[0].metadata.totalPlus ? user.credit[0].metadata.totalPlus : 0|number:2"></span>
+	/
+	<span class="text-danger" ng-bind="user.credit.length && user.credit[0].metadata.totalMinus ? user.credit[0].metadata.totalMinus : 0|number:2"></span>
+	/
+	<strong ng-bind="user.balance|currency"></strong>
+</p>
+{/block}
+
+{block body}
+<table class="table table-condensed table-striped" ng-init="totalItems = user.credit.length > 0 ? user.credit[0].metadata.count : 0">
+	<thead>
+		<tr>
+			<th>Částka</th>
+			<th>Čas transakce</th>
+			<th>Poznámka</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr dir-paginate="credit in user.credit|orderBy:'-id'
+			|itemsPerPage:user.creditPerPage track by credit.id"
+			total-items="totalItems">
+			<td class="text-right" ng-bind="credit.amount|currency" ng-class="{
+								'text-danger': credit.amount <= 0,
+								'text-success': credit.amount > 0
+							}"></td>
+			<td ng-bind="credit.dateAdd|date:'EEEE, d. M. y - HH:mm:ss'"></td>
+			<td ng-bind="credit.keg ? 'Keg #' + credit.keg.id + ': ' +
+					credit.keg.beer.brewery.name + ' ' + credit.keg.beer.name + ' (' +
+					(credit.keg.volume|liters) + ')' : (credit.note || ''|capitalize)"></td>
+		</tr>
+	</tbody>
+	<tfoot ng-show="totalItems > user.creditPerPage">
+		<tr>
+			<td colspan="3" class="text-center">
+				<dir-pagination-controls on-page-change="user.getCredit(newPageNumber)"></dir-pagination-controls>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+{/block}
+
+{block footer}
+<button type="button" class="btn btn-primary float-left" ng-if="isManager"
+		bs-popover data-placement="top-left" data-template="addNewCredit">
+	Vklad na konto
+</button>
+{include parent}
+{/block}
+
+{block snippets}
+<div cache-template="addNewCredit">
+	<div class="popover" style="min-width:550px;">
+		<div class="arrow"></div>
+		<h3 class="popover-title">Připsat vklad</h3>
+		<div class="popover-content">
+			{control creditAddForm:inline}
+		</div>
+	</div>
+</div>

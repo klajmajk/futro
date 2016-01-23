@@ -1,0 +1,125 @@
+{block title}
+Detail sudu # {{ ::keg.id}} &ndash; {{ ::keg.beer.brewery.name}} {{ ::keg.beer.name}}
+{/block}
+
+{block content}
+<div class="keg-info" ng-init="keg.getConsumption();">
+	<div class="row">
+		<div class="col-xs-3 text-right"><strong>Stav</strong></div>
+		<div class="col-xs-3" ng-bind-html="keg.getStateLabel()"></div>
+		<div class="col-xs-3 text-right"><strong>Cena za sud</strong></div>
+		<div class="col-xs-3" ng-bind="keg.price | currency:'Kč ':2"></div>
+	</div>
+	<div class="row">
+		<div class="col-xs-3 text-right"><strong>Naskladněno</strong></div>
+		<div class="col-xs-3" ng-bind="keg.dateAdd | date:'d. M. yyyy'"></div>
+		<div class="col-xs-3 text-right"><strong>Zbývá objem</strong></div>
+		<div class="col-xs-3" ng-bind="(0.001 * keg.rest|number:2) + ' / ' + (keg.volume|liters)">
+		</div>		
+	</div>
+	<div class="row" ng-if="keg.dateTap">
+		<div class="col-xs-3 text-right"><strong>Naraženo</strong></div>
+		<div class="col-xs-3" ng-bind="keg.dateTap | date:'d. M. yyyy'"></div>
+		<div class="col-xs-6">
+			<div class="progress">
+				<div class="progress-bar progress-bar-success progress-bar-striped"
+					 role="progressbar" aria-valuemin="0" aria-valuemax="{{ keg.volume}}"
+					 aria-valuenow="{{ keg.rest}}"
+					 style="width: {{ keg.rest / keg.volume | percent}};"
+					 ng-bind="keg.rest / keg.volume | percent"></div>
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-if="keg.dateEnd">
+		<div class="col-xs-3 text-right"><strong>Dopito</strong></div>
+		<div class="col-xs-3" ng-bind="keg.dateEnd | date:'d. M. yyyy'"></div>
+		<div class="col-xs-3 text-right"><strong>Cena za 1 pivo</strong></div>
+		<div class="col-xs-3" ng-bind="keg.price / (((keg.volume - keg.rest) / 500) || 1)|currency:'Kč ':2"></div>
+	</div>
+	<br />
+	<br />
+	{* kegConsumption table with tree nested ng-repeats *}
+	<div class="panel panel-danger" ng-if="keg.consumption.length"
+		 ng-init="editable = isManager && !keg.dateEnd">
+		<div class="panel-heading">
+			Pivní deník
+		</div>
+		<table class="table table-condensed table-striped">
+			<thead>
+				<tr>
+					<th>Konzument</th>
+					<th>Poslední náčep</th>
+					<th>Celkem vypil</th>
+				</tr>
+			</thead>
+			<tbody ng-repeat="(userId, userCons) in ::keg.consumption|groupBy:'user' track by userId">
+				<tr>
+					<td>
+						<label style="font-weight: normal; cursor: pointer;">
+							<input type="checkbox" ng-model="userCons.expand">
+							<span ng-bind="::usersById[userId].name"></span>
+						</label>
+					</td>
+					<td>
+						<em ng-bind="::userCons|max:'dateAdd'|date:'EEEE, d. M. y, HH:mm:ss'"></em>
+					</td>
+					<td>
+						<strong ng-bind="::userCons|total:'volume'|liters:3"></strong>
+					</td>
+				</tr>
+				<tr ng-show="userCons.expand"
+					ng-repeat-start="(date, consum) in ::userCons|groupBy:'dateAdd':'date' track by date">
+					<td><i class="glyphicon glyphicon-chevron-up"></i></td>
+					<td>
+						<label style="font-weight: normal; cursor: pointer">
+							<input type="checkbox" ng-model="consum.expand">
+							<span ng-bind="::date|date:'EEEE, d. M. y'"></span>
+						</label>
+					</td>
+					<td>
+						<em ng-bind="::consum|total:'volume'|liters:3"></em>
+					</td>
+				</tr>
+				<tr ng-repeat-end ng-repeat="cons in ::consum track by cons.id"
+					ng-show="userCons.expand && consum.expand">
+					<td><i class="glyphicon glyphicon-chevron-up"></i></td>
+					<td>
+						<strong ng-bind="$index + 1 + '.'"></strong>&nbsp;&nbsp;
+						<span ng-bind="::cons.dateAdd|date:'HH:mm:ss'"></span>
+					</td>
+					<td>
+						<i class="glyphicon glyphicon-chevron-up"></i>
+						<span ng-bind="::cons.volume|liters:3"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+{/block}
+
+{block snippets}
+<div cache-template="stockNewConsumptionPopover">
+	<form class="form-inline" ng-init="additional = {}">
+		<div class="form-group">
+			<button type="button" class="btn btn-default" ng-model="additional.user"
+					ng-options="user.id as user.name for user in users" bs-select
+					placeholder="Osoba...">
+			</button>
+		</div>
+		<div class="form-group">
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Spotřeba piv"
+					   ng-model="additional.volume">
+				<div class="input-group-addon">
+					{{ additional.volume | beerTranslate | calculate | number:0}} ml
+				</div>
+			</div>
+		</div>
+		<button class="btn btn-success"
+				ng-disabled="!(additional.user > 0 && additional.volume)"
+				ng-click="keg.saveConsumption(additional).$promise.then($hide())">
+			Uložit
+		</button>
+	</form>
+</div>

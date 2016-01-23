@@ -1,0 +1,13 @@
+{block title}
+Přidat nové pivo
+{/block}
+
+{block content}
+<div ng-init="beerAdd.init()">
+	{control beerAddForm:horizontal}
+</div>
+{/block}
+
+{block footer}
+<button type="button" class="btn btn-success" ng-click="beerAdd.save()">Zapsat změny</button>
+{include parent}

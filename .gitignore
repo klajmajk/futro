@@ -1,0 +1,12 @@
+/app/config/*.neon
+/app/bootstrap.php
+/bin
+/nbproject
+/vendor
+/temp
+/tests
+/log
+/bower_components
+/node_modules
+.htaccess
+web.config

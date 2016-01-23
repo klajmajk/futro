@@ -1,0 +1,54 @@
+<div class="panel panel-default">
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th>Jméno</th>
+				<th>Status</th>
+				<th>Posledně čepoval</th>
+				<th>Bilance</th>
+				<th colspan="2">Kontakt</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="user in users track by user.id">
+				<td>
+					<span class="anchor-like" bs-modal data-template="modals/useredit"
+						  ng-if="isManager || currentUser === user.id">
+						<i class="glyphicon glyphicon-pencil"></i>
+					</span>
+					<span ng-bind="user.name"></span>
+				</td>
+				<td ng-bind-html="user.getRoleLabel()"></td>
+				<td>
+					<span class="anchor-like" bs-modal data-template="modals/userconsumption">
+						<i class="glyphicon glyphicon-tint"></i>
+					</span>
+					<span ng-bind="user.lastTap|date:'EEEE, d. M. y'"></span>
+				</td>
+				<td>
+					<span class="anchor-like" bs-modal data-template="modals/usercredit">
+						<i class="glyphicon glyphicon-piggy-bank"></i>
+					</span>
+					<span ng-class="{
+						'text-danger': user.balance < 0,
+						'text-warning': user.balance < 300,						
+						'text-success': user.balance > 800
+					}"
+						  ng-bind="user.balance|currency"></span>
+				</td>
+				<td>
+					<a ng-href="mailto:{{ user.email}}">
+						<i class="glyphicon glyphicon-envelope"
+						   bs-tooltip="user.email"></i>
+					</a>
+				</td>
+				<td>					
+					<a ng-href="tel:{{ user.phone}}">
+						<i class="glyphicon glyphicon-earphone"
+						   bs-tooltip="user.phone"></i>
+					</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

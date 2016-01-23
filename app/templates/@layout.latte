@@ -1,0 +1,28 @@
+{**
+ * @param string   $basePath web base path
+ * @param array    $flashes  flash messages
+ *}
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{ifset #title}{include title|striptags} | {/ifset}Kumpanium</title>
+	
+	<link rel="shortcut icon" href="{$basePath}/favicon.ico">	
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	{ifset #cssp}<link rel="stylesheet" href="{$basePath}/css/turbine/css.php?files={include cssp}" />{/ifset}
+	{block head}{/block}
+</head>
+
+<body>
+	<script> document.documentElement.className+=' js'; </script>
+	
+	<div n:foreach="$flashes as $flash" class="flash {$flash->type}">{$flash->message}</div>
+	
+	{include content}
+	{block scripts}{/block}
+	
+</body>
+</html>

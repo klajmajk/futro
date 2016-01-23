@@ -1,0 +1,111 @@
+{block title}
+Upravit uživatele #{{ ::user.id}}: {{ user.name}}
+{/block}
+
+{block content}
+<form class="form-horizontal" name="userEdit.form" novalidate ng-init="userEdit.init(user)">
+	<div class="form-group">
+		<label for="userName" class="col-sm-2 control-label">Jméno</label>
+		<div class="col-sm-10">
+			<div class="input-group">
+				<div class="input-group-addon">
+					<label>
+						<input type="checkbox" ng-model="userEdit.edit.name">
+						Upravit
+					</label>
+				</div>
+				<input type="text" class="form-control"
+					   ng-min-length="3" required
+					   ng-readonly="!userEdit.edit.name"
+					   ng-model="userEdit.model.name"
+					   id="userName">
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="userEmail" class="col-sm-2 control-label">Email</label>
+		<div class="col-sm-10">
+			<div class="input-group">
+				<div class="input-group-addon">
+					<label>
+						<input type="checkbox" ng-model="userEdit.edit.email">
+						Upravit
+					</label>
+				</div>
+				<input type="email" class="form-control"
+					   ng-readonly="!userEdit.edit.email"
+					   ng-model="userEdit.model.email"
+					   id="userName">
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="userPhone" class="col-sm-2 control-label">Telefon</label>
+		<div class="col-sm-10">
+			<div class="input-group">
+				<div class="input-group-addon" n:syntax="off">
+					<label>
+						<input type="checkbox" ng-model="userEdit.edit.phone">
+						Upravit
+					</label>
+				</div>
+				<input type="text" data-valid-phone name="phone" class="form-control"
+					   ng-readonly="!userEdit.edit.phone"
+					   ng-model="userEdit.model.phone"
+					   id="userName">
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="userPhone" class="col-sm-2 control-label">Heslo</label>
+		<div class="col-sm-10">
+			<button type="button" class="btn btn-default" bs-popover
+					data-template="editPasswordPopover"
+					data-placement="top">
+				Změnit heslo ...
+			</button>
+		</div>
+	</div>
+</form>
+{/block}
+
+{block footer}
+<button type="button" class="btn btn-default" ng-click="$hide()">Zrušit</button>
+<button type="button" class="btn btn-primary" ng-click="userEdit.save().then($hide())">Uložit</button>
+{/block}
+
+{block snippets}
+<div cache-template="editPasswordPopover">
+	<div class="popover">
+		<div class="arrow"></div>
+		<h3 class="popover-title">Změna hesla</h3>
+		<div class="popover-content">
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label for="passwordOld" class="col-sm-5 control-label">Aktuální heslo</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userEdit.password.old"
+							   id="passwordOld">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="passwordNew1" class="col-sm-5 control-label">Nové heslo poprvé</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userEdit.password.new1"
+							   id="passwordNew1">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="passwordNew2" class="col-sm-5 control-label">Nové heslo podruhé</label>
+					<div class="col-sm-7">
+						<input type="password" class="form-control"
+							   ng-model="userEdit.password.new2"
+							   id="passwordNew2">
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
