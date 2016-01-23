@@ -10,3 +10,4 @@
 /node_modules
 .htaccess
 web.config
+composer.lock
